@@ -10,10 +10,12 @@
     ],
     "headers": [
       {
-        "source": "**",
+        "source": "**/*",
         "headers": [
           {
-            "key": "Access-Control-Allow-Origin",
+            // "key": "Access-Control-Allow-Origin",
+            // "key": "Access-Control-Embedder-Policy",
+            "key": "Cross-Origin-Opener-Policy",
             "value": "*"
           }
         ]
