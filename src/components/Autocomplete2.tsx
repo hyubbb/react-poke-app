@@ -1,16 +1,26 @@
 import { useEffect, useState } from "react";
+import { PokemonNameAndUrl } from "../types/PokemonData";
 
-const Autocomplete2 = ({ allPokemons, setDisplayedPokemons }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+interface AutoCompleteProps {
+  allPokemons: PokemonNameAndUrl[];
+  setDisplayedPokemons: React.Dispatch<
+    React.SetStateAction<PokemonNameAndUrl[]>
+  >;
+}
+const Autocomplete2 = ({
+  allPokemons,
+  setDisplayedPokemons,
+}: AutoCompleteProps) => {
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const filterNames = (input) => {
+  const filterNames = (input: string) => {
     const value = input.toLowerCase();
     return value
       ? allPokemons.filter((e) => e.name.includes(value)).sort()
       : [];
   };
 
-  const [online, setOnline] = useState([]);
+  const [online, setOnline] = useState<string[]>([]);
 
   useEffect(() => {
     // console.log(searchTerm);
@@ -24,11 +34,10 @@ const Autocomplete2 = ({ allPokemons, setDisplayedPokemons }) => {
     setDisplayedPokemons(filterNames(text));
   };
 
-  const checkEqualName = (input) => {
+  const checkEqualName = (input: string) => {
     const filteredArray = filterNames(input);
-    console.log(filteredArray);
     // filterNames의 리턴값이 배열이다. 잘 확인 할 것
-    // 검색한 값과 일치한 값이 있으면, autocomplite 보이지 않기
+    // 검색한 값과 일치한 값이 있으면, autocomplete 보이지 않기
     return filteredArray[0]?.name === input ? [] : filteredArray;
   };
 

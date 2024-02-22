@@ -1,0 +1,22 @@
+
+{
+  "compilerOptions":
+    {
+      "target": "ESNext",
+      "noEmitOnError": false, // 에러발생시 컴파일 시킬건지?
+      "module": "ESNext", // 컴파일을 마친후에 js가 사용하는 모듈시스템 es6이후 모든버전
+      "moduleResolution": "Node",
+      "esModuleInterop": true, // esmodule과 commonjs 호환여부
+      "lib": ["ESNext","DOM"],
+      "strict": true,
+      "allowJs": true,
+      "jsx": "react-jsx",
+      "noEmit": true,
+      "allowSyntheticDefaultImports": true
+
+    },
+    "include":[
+      "src"
+    ],
+    // "references":[{"path":"./tsconfig.node.json"}]
+}

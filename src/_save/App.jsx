@@ -25,11 +25,9 @@ function App() {
       const offsetValue = isFirstFetch ? 0 : offset + limit;
       const url = `https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offsetValue}`;
       const response = await axios.get(url);
-      // console.log(response.data.results);
       isFirstFetch
         ? setPokemons(response.data.results)
         : setPokemons([...pokemons, ...response.data.results]);
-
       // setPokemons([...response.data.results]);
 
       setOffset(offsetValue);
@@ -96,7 +94,7 @@ function App() {
         </section>
         <div className='text-center'>
           <button
-            onClick={() => fetchPokeData(false)}
+            onClick={() => fetchPokeData(true)}
             className='bg-slate-800 px-6 py-2 my-4 text-base rounded-lg font-bold text-white'
           >
             더 보기

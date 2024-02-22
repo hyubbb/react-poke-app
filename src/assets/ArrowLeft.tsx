@@ -1,9 +1,11 @@
 // import { ClassNameProps } from "../types/ClassNameProps";
 
-export const ArrowLeft = () => (
+import { ClassNameProps } from "../types/ClassNameProps";
+
+export const ArrowLeft = ({ className: CN }: ClassNameProps) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
-    // className={CN}
+    className={CN}
     width='24'
     height='32'
     viewBox='0 0 24 32'

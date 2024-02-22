@@ -7,10 +7,12 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
+  User,
 } from "firebase/auth";
 import app from "../firebase";
+import storage from "../utils/storage";
 
-const NavWrapper = styled.nav`
+const NavWrapper = styled.nav<{ $show: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -23,7 +25,7 @@ const NavWrapper = styled.nav`
   letter-spacing: 16px;
   z-index: 100;
   cursor: pointer;
-  background-color: ${(props) => (props.$show ? "red" : "white")};
+  background-color: ${(props) => (props.$show ? "#424242" : "white")};
 `;
 
 const Image = styled.img`
@@ -33,7 +35,7 @@ const Image = styled.img`
 
 const Logo = styled.div`
   padding: 0;
-  width: 50px;
+  width: 100px;
   margin-top: 4px;
 `;
 
@@ -97,11 +99,14 @@ const NavBar = () => {
   const [show, setShow] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const intialUserData = localStorage.getItem("userData")
-    ? JSON.parse(localStorage.getItem("userData"))
-    : {};
 
-  const [userData, setUserData] = useState(intialUserData);
+  const UserDataFromStorage = localStorage.getItem("userData");
+
+  //  const initialUserData =  UserDataFromStorage ? JSON.parse(UserDataFromStorage) : null;
+  const initialUserData = storage.get<User>("userData");
+  // JSON.parse는 string만 할수 있다. but localStorage.getItem은 null이 될 수도 있어서 에러.
+
+  const [userData, setUserData] = useState<User | null>(initialUserData);
 
   const listener = () => {
     if (window.scrollY > 50) {
@@ -126,55 +131,33 @@ const NavBar = () => {
     console.log("handleAuth");
     const userInfo = signInWithPopup(auth, provider)
       .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        // const credential = GoogleAuthProvider.credentialFromResult(result);
-        // const token = credential.accessToken;
-        // The signed-in user info.
         setUserData(result.user);
-        localStorage.setItem("userData", JSON.stringify(result.user));
+        storage.set("userData", result.user);
       })
       .catch((error) => {
         // Handle Errors here.
         const errorCode = error.code;
         const errorMessage = error.message;
-        // The email of the user's account used.
-        // const email = error.customData.email;
-        // The AuthCredential type that was used.
-        // const credential = GoogleAuthProvider.credentialFromError(error);
       });
   };
 
   const handleLogOut = () => {
     signOut(auth)
       .then(() => {
-        setUserData({});
-        localStorage.removeItem("userData");
+        setUserData(null);
+        storage.remove("userData");
       })
       .catch((error) => {
         alert(error.message);
       });
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        navigate("/login");
-      } else if (user && pathname == "/login") {
-        console.log("login");
-        navigate("/");
-      }
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, [pathname]);
-
   return (
     <>
       <NavWrapper $show={show}>
         <Logo>
           <Image
-            src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png'
+            src='../src/assets/img/pokelogo.png'
             alt=''
             className='src'
             onClick={() => (window.location.href = "/")}
@@ -184,7 +167,7 @@ const NavBar = () => {
           <Login onClick={handleAuth}>login</Login>
         ) : (
           <SignOut>
-            <UserImg src={userData.photoURL} />
+            {userData?.photoURL && <UserImg src={userData.photoURL} />}
             <Dropdown>
               <span onClick={handleLogOut}>Sign Out</span>
             </Dropdown>

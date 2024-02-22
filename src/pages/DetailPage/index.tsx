@@ -9,21 +9,38 @@ import { Balance } from "../../assets/Balance";
 import { Vector } from "../../assets/Vector";
 import Type from "../../components/Type";
 import BaseStat from "../../components/BaseStat";
-import DamageRelations from "../../components/DamageRelations";
 import DamageModal from "../../components/DamageModal";
+import { FormattedPokemonData } from "../../types/FormattedPokemonData";
+import {
+  Ability,
+  PokemonDetail,
+  Sprites,
+  Stat,
+} from "../../types/PokemonDetail";
+import { DamageRelationsOfType } from "../../types/DamageRelationsOfType";
+import {
+  FlavorTextEntry,
+  PokemonDescription,
+} from "../../types/PokemonDescription";
+import { PokemonData } from "../../types/PokemonData";
+
+interface NextAndPreviousPokemon {
+  next: string | undefined;
+  previous: string | undefined;
+}
 
 const DetailPage = () => {
-  const [pokemon, setPokemon] = useState();
-  const [isLoading, setIsLoading] = useState(true);
+  const [pokemon, setPokemon] = useState<FormattedPokemonData>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const params = useParams();
+  const params = useParams() as { id: string };
   const pokeId = params.id;
   const baseUrl = "https://pokeapi.co/api/v2/pokemon/";
-  useEffect(() => {
-    fetchPokemonData();
-  }, []);
+  // useEffect(() => {
+  //   fetchPokemonData();
+  // }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -33,22 +50,24 @@ const DetailPage = () => {
   const fetchPokemonData = async () => {
     const url = `${baseUrl}${pokeId}`;
     try {
-      const { data: pokemonData } = await axios.get(url);
+      const { data: pokemonData } = await axios.get<PokemonDetail>(url);
       if (pokemonData) {
         const { name, id, types, weight, height, stats, abilities, sprites } =
           pokemonData;
-        const nextAndPreviousPokemon = await getNextAndPreviousPokemon(id);
+        const nextAndPreviousPokemon: NextAndPreviousPokemon =
+          await getNextAndPreviousPokemon(id);
 
         // 비동기작업 한꺼번에 처리 후 리턴,
         const DamageRelations = await Promise.all(
           types.map(async (i) => {
-            const type = await axios.get(i.type.url);
+            const type = await axios.get<DamageRelationsOfType>(i.type.url);
             return type.data.damage_relations;
           })
         );
 
         // detail정보를 위한 데이터 가공
-        const formattedPokemonData = {
+
+        const formattedPokemonData: FormattedPokemonData = {
           id,
           name,
           weight: weight / 10,
@@ -72,16 +91,17 @@ const DetailPage = () => {
     }
   };
 
-  const getNextAndPreviousPokemon = async (id) => {
+  const getNextAndPreviousPokemon = async (id: number) => {
     // id -1 을 하는 이유는 현재값이 5이면 (5-1)해서 4다음부터 limits=1 1개의 값을 가져오겟다.
     // 즉 5를 불러오는거라서 -1
     const urlPokemon = `${baseUrl}?limit=1&offset=${id - 1}`;
-    const { data: pokemonData } = await axios.get(urlPokemon);
+    const { data: pokemonData } = await axios.get<PokemonData>(urlPokemon);
 
     const nextResponse =
-      pokemonData.next && (await axios.get(pokemonData.next));
+      pokemonData.next && (await axios.get<PokemonData>(pokemonData.next));
     const previousResponse =
-      pokemonData.previous && (await axios.get(pokemonData.previous));
+      pokemonData.previous &&
+      (await axios.get<PokemonData>(pokemonData.previous));
 
     return {
       next: nextResponse?.data?.results?.[0]?.name,
@@ -89,32 +109,35 @@ const DetailPage = () => {
     };
   };
 
-  const formatPokemonDescription = async (id) => {
+  const formatPokemonDescription = async (id: number): Promise<string> => {
     const url = `https://pokeapi.co/api/v2/pokemon-species/${id}/`;
 
-    const { data: pokemonSpecies } = await axios.get(url);
-    const result = filterFormatDescription(pokemonSpecies.flavor_text_entries);
-
+    const { data: pokemonSpecies } = await axios.get<PokemonDescription>(url);
+    const result: string[] = filterFormatDescription(
+      pokemonSpecies.flavor_text_entries
+    );
     return result[Math.floor(Math.random() * result.length)];
   };
 
-  const filterFormatDescription = (flavorText) => {
+  const filterFormatDescription = (flavorText: FlavorTextEntry[]): string[] => {
     const koreanDescripiton = flavorText
-      ?.filter((text) => text.language.name == "ko")
-      .map((text) => text.flavor_text.replace(/\r|\n|\f/g, " "));
+      ?.filter((text: FlavorTextEntry) => text.language.name == "ko")
+      .map((text: FlavorTextEntry) =>
+        text.flavor_text.replace(/\r|\n|\f/g, " ")
+      );
     return koreanDescripiton;
   };
 
-  const formatPokemonAbilities = (abilities) => {
+  const formatPokemonAbilities = (abilities: Ability[]) => {
     return abilities
       .filter((_, i) => i <= 1)
-      .map((obj) => obj.ability.name.replaceAll("-", " "));
+      .map((obj: Ability) => obj.ability.name.replaceAll("-", " "));
   };
 
-  const formatPokemonSprites = (sprites) => {
+  const formatPokemonSprites = (sprites: Sprites) => {
     const newSprites = { ...sprites };
 
-    Object.keys(newSprites).forEach((key) => {
+    (Object.keys(newSprites) as (keyof typeof newSprites)[]).forEach((key) => {
       if (typeof newSprites[key] !== "string") {
         delete newSprites[key];
       }
@@ -126,10 +149,8 @@ const DetailPage = () => {
       },
       {}
     );
-    // console.log(Object.entries(objects).length);
-
     objects = Object.entries(objects);
-    // console.log(Object.entries(newSprites));
+
     const array = [];
     let minus = objects.length / 2;
     for (let i = 0; i < objects.length; i++) {
@@ -144,9 +165,6 @@ const DetailPage = () => {
       }
     }
 
-    // console.log(array);
-    // console.log(newSprites);
-    // return Object.values(newSprites);
     return array;
   };
 
@@ -157,7 +175,7 @@ const DetailPage = () => {
     statSATK,
     statSDEP,
     statSPD,
-  ]) => {
+  ]: Stat[]) => {
     return [
       { name: "Hit points", baseStat: statHP.base_stat },
       { name: "Attack", baseStat: statATK.base_stat },
@@ -188,7 +206,7 @@ const DetailPage = () => {
     return (
       <article className={`flex items-center gap-1 flex-col w-full`}>
         <div
-          className={`${bg} w-auto h-full flex flex-col z-0 items-center justify-end relative overflow-hidden`}
+          className={`${bg} w-full h-full flex flex-col z-0 items-center justify-end relative overflow-hidden`}
         >
           {pokemon.previous && (
             <Link

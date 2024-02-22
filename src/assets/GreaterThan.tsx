@@ -1,9 +1,11 @@
-export const GreaterThan = () => (
+import { ClassNameProps } from "../types/ClassNameProps";
+
+export const GreaterThan = ({ className: CN }: ClassNameProps) => (
   <svg
     viewBox='0 0 8 16'
     fill='none'
     xmlns='http://www.w3.org/2000/svg'
-    // className={CN}
+    className={CN}
   >
     <g clipPath='url(#clip0_346_14988)'>
       <path

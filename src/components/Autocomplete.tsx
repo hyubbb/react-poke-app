@@ -5,19 +5,30 @@
  */
 
 import React, { useState, useRef } from "react";
+import { PokemonNameAndUrl } from "../types/PokemonData";
 
-const Autocomplete = ({ allPokemons, setDisplayedPokemons }) => {
+interface AutoCompleteProps {
+  allPokemons: PokemonNameAndUrl[];
+  setDisplayedPokemons: React.Dispatch<
+    React.SetStateAction<PokemonNameAndUrl[]>
+  >;
+}
+
+const Autocomplete = ({
+  allPokemons,
+  setDisplayedPokemons,
+}: AutoCompleteProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [keyIndex, setKeyIndex] = useState(-1);
 
-  const filterNames = (input) => {
+  const filterNames = (input: string) => {
     const value = input.toLowerCase();
     return value
       ? allPokemons.filter((e) => e.name.includes(value)).sort()
       : [];
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let text = searchTerm.trim(); // 문자열 좌우 공백제거
     if (keyIndex == -1 && searchTerm) {
@@ -26,7 +37,7 @@ const Autocomplete = ({ allPokemons, setDisplayedPokemons }) => {
     }
   };
 
-  const checkEqualName = (input) => {
+  const checkEqualName = (input: string) => {
     const filteredArray = filterNames(input);
     // setKeyIndex(-1);
     // console.log(filteredArray);
@@ -35,10 +46,10 @@ const Autocomplete = ({ allPokemons, setDisplayedPokemons }) => {
     return filteredArray[0]?.name === input ? [] : filteredArray;
   };
 
-  const autoRef = useRef();
+  const autoRef = useRef<HTMLUListElement>(null);
   //   const [liIndex, setLiIndex] = useState();
 
-  const handleKeyArrow = (e) => {
+  const handleKeyArrow = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (checkEqualName(searchTerm).length > 0) {
       const pokeLength = checkEqualName(searchTerm).length;
       // 데이터 갯수만큼 이상 keyindex가 늘어나지 않게
@@ -98,18 +109,12 @@ const Autocomplete = ({ allPokemons, setDisplayedPokemons }) => {
               <li
                 key={`${i}`}
                 className={
-                  `text-base w-full p-[2px] text-white hover:bg-gray-600 ` +
+                  `text-base w-full px-2  text-white hover:bg-gray-600 ` +
                   (keyIndex === i ? `${i} bg-neutral-600` : i)
                 }
                 onClick={() => setSearchTerm(e.name)}
               >
                 {e.name}
-                {/* <button
-                  //   onClick={() => setSearchTerm(e.name)}
-                  className={`text-base w-full hover:bg-gray-600 p-[2px] text-gray-100`}
-                >
-                  {e.name}
-                </button> */}
               </li>
             ))}
           </ul>

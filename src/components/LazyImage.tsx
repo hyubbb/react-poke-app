@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const LazyImage = ({ url, alt }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [opacity, setOpacity] = useState("opacity-0");
+interface LazyImageProps {
+  url: string;
+  alt: string;
+}
+
+const LazyImage = ({ url, alt }: LazyImageProps) => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [opacity, setOpacity] = useState<string>("opacity-0");
 
   useEffect(() => {
     // opacity 는 tailWindcss utility
