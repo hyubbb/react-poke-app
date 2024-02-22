@@ -98,16 +98,28 @@ const UserImg = styled.img`
 const NavBar = () => {
   const [show, setShow] = useState(false);
   const { pathname } = useLocation();
+
   const navigate = useNavigate();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      } else if (user && pathname === "/login") {
+        navigate("/");
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [pathname]);
 
   const UserDataFromStorage = localStorage.getItem("userData");
-
   //  const initialUserData =  UserDataFromStorage ? JSON.parse(UserDataFromStorage) : null;
   const initialUserData = storage.get<User>("userData");
   // JSON.parse는 string만 할수 있다. but localStorage.getItem은 null이 될 수도 있어서 에러.
 
   const [userData, setUserData] = useState<User | null>(initialUserData);
-
   const listener = () => {
     if (window.scrollY > 50) {
       setShow(true);
@@ -144,8 +156,8 @@ const NavBar = () => {
   const handleLogOut = () => {
     signOut(auth)
       .then(() => {
-        setUserData(null);
         storage.remove("userData");
+        setUserData(null);
       })
       .catch((error) => {
         alert(error.message);

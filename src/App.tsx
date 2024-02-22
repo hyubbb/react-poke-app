@@ -9,7 +9,9 @@ const Layout = () => {
   return (
     <>
       <NavBar />
-
+      <br />
+      <br />
+      <br />
       <Outlet />
     </>
   );
@@ -22,7 +24,8 @@ const App = () => {
         <Route path='/' element={<Layout />}>
           <Route index element={<MainPage />} />
           <Route path='/pokemon/:id' element={<DetailPage />} />
-          <Route path='login' element={<LoginPage />} />
+          <Route path='/login' element={<LoginPage />} />
+          {/* <Route path='/*' element={<Layout />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>
