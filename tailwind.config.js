@@ -30,6 +30,7 @@ module.exports = {
         steel: "#B7B7CE",
         fairy: "#D685AD",
         none: "#BfBfBf",
+        shadow: "#8d8c8d",
       },
     },
   },

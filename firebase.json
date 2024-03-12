@@ -13,9 +13,7 @@
         "source": "**/*",
         "headers": [
           {
-            // "key": "Access-Control-Allow-Origin",
-            // "key": "Access-Control-Embedder-Policy",
-            "key": "Cross-Origin-Opener-Policy",
+            "key": "Access-Control-Allow-Origin",
             "value": "*"
           }
         ]

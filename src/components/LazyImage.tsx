@@ -9,7 +9,6 @@ interface LazyImageProps {
 const LazyImage = ({ url, alt }: LazyImageProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [opacity, setOpacity] = useState<string>("opacity-0");
-
   useEffect(() => {
     // opacity 는 tailWindcss utility
     isLoading ? setOpacity("opacity-0") : setOpacity("opacity-100");

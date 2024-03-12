@@ -8,4 +8,7 @@ export interface PokemonData {
 export interface PokemonNameAndUrl {
   name: string;
   url: string;
+  id: number;
+  num: number;
+  koreanName: string;
 }

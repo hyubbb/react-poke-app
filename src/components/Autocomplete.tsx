@@ -6,33 +6,54 @@
 
 import React, { useState, useRef } from "react";
 import { PokemonNameAndUrl } from "../types/PokemonData";
+import { useDispatch, useSelector } from "react-redux";
+import { searchStatus } from "../stores/pokemon.slice";
 
 interface AutoCompleteProps {
   allPokemons: PokemonNameAndUrl[];
-  setDisplayedPokemons: React.Dispatch<
-    React.SetStateAction<PokemonNameAndUrl[]>
-  >;
+  setDisplayPokemons: React.Dispatch<React.SetStateAction<PokemonNameAndUrl[]>>;
 }
 
 const Autocomplete = ({
   allPokemons,
-  setDisplayedPokemons,
+  setDisplayPokemons,
 }: AutoCompleteProps) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<number | string>("");
   const [keyIndex, setKeyIndex] = useState(-1);
+  const dispatch = useDispatch();
 
-  const filterNames = (input: string) => {
-    const value = input.toLowerCase();
-    return value
-      ? allPokemons.filter((e) => e.name.includes(value)).sort()
+  const filterNames = (input: string | number) => {
+    const inputReDefine = redefineType(input);
+
+    const result = inputReDefine
+      ? allPokemons
+          .filter((e) => {
+            return typeof inputReDefine === "string"
+              ? e.koreanName.includes(inputReDefine)
+              : e.id.toString().includes(inputReDefine);
+          })
+          .sort()
       : [];
+
+    return result;
+  };
+
+  const redefineType = (value) => {
+    // 숫자로 변환 가능한지 확인
+    const isNumber = !isNaN(value) && !isNaN(parseFloat(value));
+
+    // 숫자일 경우 숫자로 변환, 아니면 문자열 그대로 반환
+    return isNumber ? Number(value) : value.toLowerCase();
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("handlesubmit");
+    dispatch(searchStatus(true));
+
     let text = searchTerm.trim(); // 문자열 좌우 공백제거
     if (keyIndex == -1 && searchTerm) {
-      setDisplayedPokemons(filterNames(text));
+      if (searchTerm !== "") setDisplayPokemons(filterNames(text));
       setSearchTerm("");
     }
   };
@@ -43,7 +64,7 @@ const Autocomplete = ({
     // console.log(filteredArray);
     // filterNames의 리턴값이 배열이다. 잘 확인 할 것
     // 검색한 값과 일치한 값이 있으면, autocomplete 보이지 않기
-    return filteredArray[0]?.name === input ? [] : filteredArray;
+    return filteredArray[0]?.koreanName === input ? [] : filteredArray;
   };
 
   const autoRef = useRef<HTMLUListElement>(null);
@@ -65,7 +86,7 @@ const Autocomplete = ({
       if (e.code === "Enter" && keyIndex > -1) {
         // handleSubmit
         setKeyIndex(-1);
-        setSearchTerm(checkEqualName(searchTerm)[keyIndex].name);
+        setSearchTerm(checkEqualName(searchTerm)[keyIndex].koreanName);
       }
     }
   };
@@ -112,9 +133,9 @@ const Autocomplete = ({
                   `text-base w-full px-2  text-white hover:bg-gray-600 ` +
                   (keyIndex === i ? `${i} bg-neutral-600` : i)
                 }
-                onClick={() => setSearchTerm(e.name)}
+                onClick={() => setSearchTerm(e.koreanName)}
               >
-                {e.name}
+                {e.koreanName}
               </li>
             ))}
           </ul>

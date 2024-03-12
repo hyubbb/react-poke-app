@@ -1,12 +1,14 @@
 export interface PokemonDetail {
   abilities: Ability[];
   base_experience: number;
+  cries: any[];
   forms: Species[];
   game_indices: GameIndex[];
   height: number;
   held_items: HeldItem[];
   id: number;
   is_default: boolean;
+  koreanName: string;
   location_area_encounters: string;
   moves: Move[];
   name: string;
@@ -16,7 +18,9 @@ export interface PokemonDetail {
   species: Species;
   sprites: Sprites;
   stats: Stat[];
+  type: string;
   types: Type[];
+  url: string;
   weight: number;
 }
 

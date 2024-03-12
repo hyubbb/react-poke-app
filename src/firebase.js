@@ -7,7 +7,6 @@ import { initializeApp } from "firebase/app";
 const firebaseConfig = {
   apiKey: "AIzaSyB1KUQJJROam58v6w-_znp-yTI-qab-ky8",
   authDomain: "react-poke-app-cdf6f.firebaseapp.com",
-  // authDomain: "pokeapp-hyub.netlify.app",
   projectId: "react-poke-app-cdf6f",
   storageBucket: "react-poke-app-cdf6f.appspot.com",
   messagingSenderId: "835728498847",

@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { Loading } from "../../assets/Loading";
 import { LessThan } from "../../assets/LessThan";
 import { GreaterThan } from "../../assets/GreaterThan";
@@ -23,6 +23,7 @@ import {
   PokemonDescription,
 } from "../../types/PokemonDescription";
 import { PokemonData } from "../../types/PokemonData";
+import notPokemon from "../../assets/img/404.png";
 
 interface NextAndPreviousPokemon {
   next: string | undefined;
@@ -30,17 +31,18 @@ interface NextAndPreviousPokemon {
 }
 
 const DetailPage = () => {
+  const location = useLocation();
+  const koreanName = location.state;
   const [pokemon, setPokemon] = useState<FormattedPokemonData>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [notData, setNotData] = useState(false);
+  //
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const params = useParams() as { id: string };
   const pokeId = params.id;
   const baseUrl = "https://pokeapi.co/api/v2/pokemon/";
-  // useEffect(() => {
-  //   fetchPokemonData();
-  // }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -70,6 +72,7 @@ const DetailPage = () => {
         const formattedPokemonData: FormattedPokemonData = {
           id,
           name,
+          koreanName: koreanName,
           weight: weight / 10,
           height: height / 10,
           previous: nextAndPreviousPokemon.previous,
@@ -86,8 +89,9 @@ const DetailPage = () => {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error("서버에 상세데이터가 없는 포켓몬입니다.");
       setIsLoading(false);
+      setNotData(true);
     }
   };
 
@@ -185,16 +189,36 @@ const DetailPage = () => {
       { name: "Speed", baseStat: statSPD.base_stat },
     ];
   };
+
   if (isLoading) {
     return (
       <div className='absolute h-25 w-25 top-1/3 -translate-x-1/2 left-1/2 z-500'>
-        <Loading rand={Math.floor(Math.random() * 2) + 1} />
+        <Loading />
       </div>
     );
   }
 
   if (!isLoading && !pokemon) {
-    return <div>not found</div>;
+    return (
+      <div className='flex flex-col items-center justify-center w-full h-full mt-[10%]'>
+        <img
+          src={notPokemon}
+          alt='notPokemon'
+          className='w-[40%] h-auto'
+          loading='lazy'
+        />
+        <h1 className='text-3xl font-bold text-[black] mt-5'>
+          해당 포켓몬의 정보가 없습니다.
+        </h1>
+
+        <Link
+          to='/'
+          className='bg-slate-800 px-6 py-2 my-4 text-base rounded-lg font-bold text-white'
+        >
+          홈으로 돌아가기
+        </Link>
+      </div>
+    );
   }
 
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`;
@@ -231,11 +255,11 @@ const DetailPage = () => {
                 <Link to='/'>
                   <ArrowLeft className='w-6 h-0 text-zinc-200' />
                 </Link>
-                <h1 className='text-zinc-200 font-bold text-xl capitalize'>
-                  {pokemon.name}
+                <h1 className='text-zinc-200 font-bold text-5xl capitalize'>
+                  {pokemon.koreanName}
                 </h1>
               </div>
-              <div className='text-zinc-200 font-bold text-medium'>
+              <div className='text-zinc-200 font-bold text-2xl'>
                 #{pokemon.id.toString().padStart(3, "00")}
               </div>
             </div>
@@ -271,31 +295,31 @@ const DetailPage = () => {
 
             <div className='flex w-full items-center justify-between max-w-[400px] text-center'>
               <div className='w-full'>
-                <h4 className='text-[0.5rem] text-zinc-100 font-extrabold capitalize '>
+                <h4 className='text-[1rem] text-zinc-100 font-extrabold capitalize '>
                   weight
                 </h4>
-                <div className='text-sm flex mt-1 gap-2 justify-center text-zinc-200'>
+                <div className='text-lg flex mt-1 gap-2 justify-center text-zinc-200'>
                   <Balance />
                   {pokemon.weight}
                 </div>
               </div>
               <div className='w-full'>
-                <h4 className='text-[0.5rem] text-zinc-100 font-extrabold capitalize '>
+                <h4 className='text-[1rem] text-zinc-100 font-extrabold capitalize '>
                   height
                 </h4>
-                <div className='text-sm flex mt-1 gap-2 justify-center text-zinc-200'>
+                <div className='text-lg flex mt-1 gap-2 justify-center text-zinc-200'>
                   <Vector />
                   {pokemon.height}
                 </div>
               </div>
               <div className='w-full'>
-                <h4 className='text-[0.5rem] text-zinc-100 font-extrabold capitalize '>
+                <h4 className='text-[1rem] text-zinc-100 font-extrabold capitalize '>
                   ability
                 </h4>
                 {pokemon.abilities.map((ability, i) => (
                   <div
                     key={ability}
-                    className='text-[0.5rem] text-zinc-100 capitalize'
+                    className='text-[1rem] text-zinc-100 capitalize'
                   >
                     {ability}
                   </div>
@@ -329,7 +353,7 @@ const DetailPage = () => {
           )} */}
 
             <h2 className={`text-base font-semibold ${text} my-3`}>설명</h2>
-            <p className='text-md leading-4 font-sans text-zinc-200 max-w-[30rem] text-center'>
+            <p className='text-lg leading-5 text-zinc-200 max-w-[30rem] text-center'>
               {pokemon.description}
             </p>
             {/* 

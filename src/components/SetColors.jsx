@@ -20,6 +20,7 @@ export function SetColors() {
       <div className='text-steel bg-steel '></div>
       <div className='text-fairy bg-fairy'></div>
       <div className='text-none bg-none'></div>
+      <div className='text-none bg-shadow'></div>
     </>
   );
 }

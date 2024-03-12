@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
   getAuth,
@@ -11,6 +11,8 @@ import {
 } from "firebase/auth";
 import app from "../firebase";
 import storage from "../utils/storage";
+import fav from "../assets/img/fav.png";
+import loginIcon from "../assets/img/login.png";
 
 const NavWrapper = styled.nav<{ $show: boolean }>`
   position: fixed;
@@ -19,13 +21,14 @@ const NavWrapper = styled.nav<{ $show: boolean }>`
   right: 0;
   height: 70px;
   display: flex;
+  backdrop-filter: blur(2px);
   justify-content: space-between;
   align-items: center;
   padding: 0 36px;
   letter-spacing: 16px;
   z-index: 100;
   cursor: pointer;
-  background-color: ${(props) => (props.$show ? "#424242" : "white")};
+  background-color: ${(props) => (props.$show ? "#42424230" : "#fff")};
 `;
 
 const Image = styled.img`
@@ -58,24 +61,24 @@ const Login = styled.a`
 
 const Dropdown = styled.div`
   position: absolute;
+  width: 100px;
   top: 48px;
-  right: 0px;
+  padding: 10px;
   background: rgb(19, 19, 19);
   border: 1px solid rgba(151, 151, 151, 0.34);
   border-radius: 4px;
   box-shadow: rgb(0 0 0 / 50%) 0px 0px 18px 0px;
-  padding: 10px;
   font-size: 12px;
+  text-align: center;
   letter-spacing: 3px;
-  width: 100px;
   opacity: 0;
   color: white;
 `;
 
 const SignOut = styled.div`
   position: relative;
-  height: 48px;
-  width: 48px;
+  height: 45px;
+  width: 45px;
   display: flex;
   cursor: pointer;
   align-items: center;
@@ -90,7 +93,6 @@ const SignOut = styled.div`
 `;
 
 const UserImg = styled.img`
-  border-radius: 50%;
   width: 100%;
   height: 100%;
 `;
@@ -114,7 +116,7 @@ const NavBar = () => {
     };
   }, [pathname]);
 
-  const UserDataFromStorage = localStorage.getItem("userData");
+  // const UserDataFromStorage = localStorage.getItem("userData");
   //  const initialUserData =  UserDataFromStorage ? JSON.parse(UserDataFromStorage) : null;
   const initialUserData = storage.get<User>("userData");
   // JSON.parse는 string만 할수 있다. but localStorage.getItem은 null이 될 수도 있어서 에러.
@@ -175,17 +177,27 @@ const NavBar = () => {
             onClick={() => (window.location.href = "/")}
           />
         </Logo>
-        {pathname === `/login` ? (
-          <Login onClick={handleAuth}>login</Login>
-        ) : (
-          <SignOut>
-            {userData?.photoURL && <UserImg src={userData.photoURL} />}
-            <Dropdown>
-              <span onClick={handleLogOut}>Sign Out</span>
-            </Dropdown>
-          </SignOut>
-          // ""
-        )}
+
+        <div className='flex gap-[30px] justify-center items-center'>
+          {userData && (
+            <div className='text-[40px]'>
+              <Link to={"/pokedex"}>
+                <img src={fav} alt='' width={50} />
+              </Link>
+            </div>
+          )}
+          {pathname === `/login` ? (
+            <Login onClick={handleAuth}>login</Login>
+          ) : (
+            <SignOut>
+              {userData?.photoURL && <UserImg src={loginIcon} />}
+              <Dropdown>
+                <span onClick={handleLogOut}>logout</span>
+              </Dropdown>
+            </SignOut>
+            // ""
+          )}
+        </div>
       </NavWrapper>
     </>
   );

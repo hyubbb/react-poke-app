@@ -1,6 +1,8 @@
 export interface FormattedPokemonData {
   id: number;
   name: string;
+  url: string;
+  koreanName: string;
   weight: number;
   height: number;
   previous: string | undefined;
