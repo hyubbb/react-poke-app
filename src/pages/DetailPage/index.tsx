@@ -24,6 +24,7 @@ import {
 } from "../../types/PokemonDescription";
 import { PokemonData } from "../../types/PokemonData";
 import notPokemon from "../../assets/img/404.png";
+import NotData from "../../components/NotData";
 
 interface NextAndPreviousPokemon {
   next: string | undefined;
@@ -193,32 +194,12 @@ const DetailPage = () => {
   if (isLoading) {
     return (
       <div className='absolute h-25 w-25 top-1/3 -translate-x-1/2 left-1/2 z-500'>
-        <Loading />
+        {/* <Loading /> */}
       </div>
     );
   }
-
   if (!isLoading && !pokemon) {
-    return (
-      <div className='flex flex-col items-center justify-center w-full h-full mt-[10%]'>
-        <img
-          src={notPokemon}
-          alt='notPokemon'
-          className='w-[40%] h-auto'
-          loading='lazy'
-        />
-        <h1 className='text-3xl font-bold text-[black] mt-5'>
-          해당 포켓몬의 정보가 없습니다.
-        </h1>
-
-        <Link
-          to='/'
-          className='bg-slate-800 px-6 py-2 my-4 text-base rounded-lg font-bold text-white'
-        >
-          홈으로 돌아가기
-        </Link>
-      </div>
-    );
+    return <NotData />;
   }
 
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`;

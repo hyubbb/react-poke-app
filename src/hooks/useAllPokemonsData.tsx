@@ -22,7 +22,7 @@ const useAllPokemonsData = () => {
 
   const fetchAllPokemons = async () => {
     try {
-      const url = `https://pokeapi.co/api/v2/pokemon/?limit=100&offset=0`;
+      const url = `https://pokeapi.co/api/v2/pokemon/?limit=10000&offset=0`;
       const pokemonListResponse = await axios.get(url);
       const pokemonList = pokemonListResponse.data.results;
       // console.log(pokemonList);
@@ -178,7 +178,7 @@ const useAllPokemonsData = () => {
       { name: "Speed", baseStat: statSPD.base_stat },
     ];
   };
-  return { pokemon };
+  return pokemon;
   // return <div> sibal</div>;
 };
 

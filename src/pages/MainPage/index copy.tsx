@@ -14,36 +14,20 @@ import { searchStatus } from "../../stores/pokemon.slice";
 import Filter from "../../components/Filter";
 import loading from "../../assets/img/loading.gif";
 import useAllPokemonsData from "../../hooks/useAllPokemonsData";
-import { PokemonDetail } from "../../types/PokemonDetail";
-import NotData from "../../components/NotData";
 // import AuseAllPokemonsData from "../../hooks/AuseAllPokemonsData";
 
 function MainPage() {
   const dispatch = useAppDispatch();
   // 모든 포켓몬 데이터를 가지고 있는 State
+  const { pokemon: fetchAllPokemonData } = useAllPokemonsData();
   const [allPokemons, setAllPokemons] = useState<PokemonNameAndUrl[]>([]);
-  const getAllPokemonsData = useAllPokemonsData();
   const [listPokemon, setListPokemon] = useState<PokemonNameAndUrl[]>([]);
   // 실제로 리스트로 보여주는 포켓몬 데이터를 가지고 있는 State
   const [displayPokemons, setDisplayPokemons] = useState<PokemonNameAndUrl[]>(
     []
   );
   const [isLoadingMain, setIsLoadingMain] = useState<boolean>(false);
-  const [isNotData, setIsNotData] = useState<boolean>(false);
   const { searchState } = useAppSelector((state) => state.pokemon);
-
-  useEffect(() => {
-    // `getAllPokemonsData`에서 반환된 데이터가 변경될 때마다 이 부분이 실행됩니다.
-    // 여기서 `getAllPokemonsData`는 `useAllPokemonsData` 훅에서 반환된 값입니다.
-    if (getAllPokemonsData) {
-      // 데이터가 유효한 경우, 해당 데이터를 사용하여 원하는 작업을 수행합니다.
-      // 예: 상태 설정, 데이터 처리 등\
-      setAllPokemons(getAllPokemonsData);
-      fetchPage(0, getAllPokemonsData);
-      // fetchPage(0, getAllPokemonsData);
-      // fetchPokeData(getAllPokemonsData);
-    }
-  }, [getAllPokemonsData]); // 의존성 배열에 `getAllPokemonsData`를 넣어줍니다.
 
   const fetchAllPokemons = async () => {
     // const res = await axios.get<PokemonData>(url);
@@ -59,7 +43,7 @@ function MainPage() {
         pokemonList.map(async (pokemon) => {
           const pokemonDetailsResponse = await axios.get(pokemon.url);
           const pokemonDetails = pokemonDetailsResponse.data;
-
+          // console.log(pokemonDetails);
           return {
             name: pokemonDetails.name,
             url: pokemonDetails.url,
@@ -68,65 +52,37 @@ function MainPage() {
       );
 
       // Promise.all을 사용하여 모든 포켓몬 상세 정보 요청이 완료될 때까지 기다립니다.
+      // // console.log(allPokemonData);
+      // console.log(allPokemonData);
       setAllPokemons(pokemonDataPromises);
     } catch (error) {
       console.log("ERROR : " + error);
     }
   };
 
+  useEffect(() => {
+    console.log("first");
+    setAllPokemons(fetchAllPokemonData);
+  }, [fetchAllPokemonData]);
+
   // console.log(pokemon);
 
-  // const fetchPage = (page: number) => {
-  //   console.log("fetchPage");
-  //   const temp = getAllPokemonsData;
-  //   const offsetNum = page * 20;
-  //   // const res = await axios.get<PokemonData>(
-  //   //   `https://pokeapi.co/api/v2/pokemon/?offset=${offsetNum}&limit=20`
-  //   // );
-  //   // const limit = displayedPokemons.length + limitNum;
-
-  //   // 모든 포켓몬 데이터에서 limitNum 만큼 더 가져오기
-  //   // const array = allPokemonsData.filter((_, index) => index + 1);
-  //   // console.log(array);
-
-  //   const itemsPerPage = 20; // 페이지 당 아이템 수
-  //   const startIndex = page * itemsPerPage;
-  //   const endIndex = startIndex + itemsPerPage;
-  //   // 전체 데이터에서 현재 페이지에 해당하는 부분만 추출
-
-  //   const currentPageData = temp.slice(startIndex, endIndex);
-  //   console.log(currentPageData);
-  //   return currentPageData;
-
-  //   // return allPokemonsData;
-
-  //   // return res.data;
-  // };
-
-  const fetchPage = (page: number, allDatas: PokemonDetail) => {
-    // console.log("second", allDatas);
-    // const offsetNum = page * 20;
+  const fetchPage = useCallback(async (page: number) => {
+    console.log("fetchpage");
+    const offsetNum = page * 20;
     // const res = await axios.get<PokemonData>(
     //   `https://pokeapi.co/api/v2/pokemon/?offset=${offsetNum}&limit=20`
     // );
+    const allPokemonsData = fetchAllPokemonData;
+    const limit = displayedPokemons.length + limitNum;
 
-    // // // fetchPokeData(res.data);
+    // 모든 포켓몬 데이터에서 limitNum 만큼 더 가져오기
+    const array = allPokemonsData.filter((_, index) => index + 1);
+    console.log(array);
+    return array;
 
     // return res.data;
-
-    const itemsPerPage = 20; // 페이지 당 아이템 수
-    const startIndex = page * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    // // 전체 데이터에서 현재 페이지에 해당하는 부분만 추출
-
-    const currentPageData = allDatas.slice(startIndex, endIndex);
-    const result = { page, data: currentPageData };
-    // return currentPageData;
-    if (page == 0) {
-      fetchPokeData(result);
-    }
-    return result;
-  };
+  }, []);
 
   const {
     fetchNextPage, // 다음페이지 요청
@@ -138,26 +94,14 @@ function MainPage() {
     data: fetchData,
   } = useInfiniteQuery({
     queryKey: ["pokemonData"],
-    queryFn: ({ pageParam }) => fetchPage(pageParam, getAllPokemonsData),
+    queryFn: ({ pageParam }) => fetchPage(pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       return lastPageParam + 1;
     },
   });
 
-  useEffect(() => {
-    if (fetchData) {
-      const fetchPokemons = fetchData?.pages[fetchData?.pages.length - 1];
-      fetchPokeData(fetchPokemons);
-    }
-  }, [fetchData]);
-
-  // const fetchPokemons = fetchData?.pages[fetchData?.pages.length - 1];
-  // useEffect(() => {
-  //   if (fetchPokemons) {
-  //     fetchPokeData(fetchPokemons);
-  //   }
-  // }, [fetchPokemons]);
+  const fetchPokemons = fetchData?.pages[fetchData?.pages.length - 1];
 
   const pokemonKoreanName = async (pokeNum: number, pokeName: string) => {
     try {
@@ -184,6 +128,7 @@ function MainPage() {
     async (pokemonsData: PokemonNameAndUrl[]) => {
       // 모든 포켓몬 데이터에서 limitNum 만큼 더 가져오기
       // const array = pokemonsData.filter((_, index) => index + 1 <= limit);
+
       const promises = pokemonsData.map(async (poke) => {
         const num = +poke.url.split("/")[6];
         const koreanName = await pokemonKoreanName(num, poke.name);
@@ -201,14 +146,15 @@ function MainPage() {
     []
   );
 
-  // const fetchPokeData = async ({ results: fetchPokemons }: PokemonData) => {
-  const fetchPokeData = async (result) => {
+  const fetchPokeData = async ({ results: fetchPokemons }: PokemonData) => {
     // setListPokemon((prev) => [...listPokemon, ...fetchPokemons]);
+    console.log(searchState);
     if (searchState) {
       setDisplayPokemons(await filterDisplayedPokemonData(listPokemon));
     } else {
-      // console.log([...displayPokemons, ...fetchPokemons]);
-      setDisplayPokemons([...displayPokemons, ...result.data]);
+      setDisplayPokemons(
+        await filterDisplayedPokemonData([...displayPokemons, ...fetchPokemons])
+      );
     }
   };
 
@@ -241,31 +187,22 @@ function MainPage() {
     setIsLoadingMain(false);
   }, [displayPokemons]);
 
-  // useEffect(() => {
-  //   console.log("useeffect");
-  //   console.log(fetchPokemons);
-  //   if (fetchPokemons) {
-  //     fetchPokeData(fetchPokemons);
-  //   }
-  // }, [fetchPokemons]);
-
-  // useEffect(() => {
-  //   // if (fetchPokemons) {
-  //   // setAllPokemons(getAllPokemonsData);
-  //   fetchPokeData(allPokemons);
-  //   // }
-  // }, [allPokemons]);
+  useEffect(() => {
+    if (fetchPokemons) {
+      fetchPokeData(fetchPokemons);
+    }
+  }, [fetchPokemons]);
 
   return (
     <>
-      {/* {isLoadingMain && (
+      {isLoadingMain && (
         <div className='fixed w-full h-full flex justify-center items-center backdrop-blur-[2px] bg-[#ffffff1f] z-10'>
           <div className='text-center'>
             <img src={loading} alt='' width='200px' height='200px' />
             <div className='text-lg mt-3 text-white'>loading ...</div>
           </div>
         </div>
-      )} */}
+      )}
 
       <article className='pt-6'>
         <header className='flex flex-col gap-2 w-full px-4 z-50'>
@@ -279,30 +216,26 @@ function MainPage() {
               filterDisplayedPokemonData={filterDisplayedPokemonData}
               setIsLoadingMain={setIsLoadingMain}
               allPokemons={allPokemons}
-              setIsNotData={setIsNotData}
             />
           </div>
         </header>
         {/* <AuseAllPokemonsData /> */}
-        <section className='pt-6 flex flex-col justify-content items-center overflow-auto z-0 scrollbar-none'>
+        <section className='pt-6 flex flex-col justify-content items-center overflow-auto z-0'>
           <div className='flex flex-row flex-wrap gap-[16px] items-center justify-center px-2 max-w-4xl '>
             {displayPokemons?.length > 0 ? (
               displayPokemons.map((pokemon, idx) => {
-                // console.log(pokemon);
-                const { url, name } = pokemon;
+                const { url, name, koreanName } = pokemon;
                 return (
                   <div key={idx}>
-                    <PokeCard pokemons={pokemon} />
+                    <PokeCard url={url} name={name} koreanName={koreanName} />
                   </div>
                 );
               })
-            ) : isNotData ? (
-              <NotData />
             ) : (
               <div className='fixed w-full h-full flex justify-center items-center backdrop-blur-[2px] bg-[#ffffff1f] z-10'>
                 <div className='text-center'>
                   <img src={loading} alt='' width='200px' height='200px' />
-                  <div className='text-lg mt-3 text-black'>loading ...</div>
+                  <div className='text-lg mt-3 text-white'>loading ...</div>
                 </div>
               </div>
             )}
