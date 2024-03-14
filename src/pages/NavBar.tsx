@@ -13,6 +13,7 @@ import app from "../firebase";
 import storage from "../utils/storage";
 import fav from "../assets/img/fav.png";
 import loginIcon from "../assets/img/login.png";
+import logo from "../assets/img/pokelogo.png";
 
 const NavWrapper = styled.nav<{ $show: boolean }>`
   position: fixed;
@@ -170,8 +171,8 @@ const NavBar = () => {
       <NavWrapper $show={show}>
         <Logo>
           <Image
-            src='../src/assets/img/pokelogo.png'
-            alt=''
+            src={logo}
+            alt='logo'
             className='src'
             onClick={() => (window.location.href = "/")}
           />
