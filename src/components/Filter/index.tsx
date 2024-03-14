@@ -14,7 +14,6 @@ interface FilterProps {
   allPokemons: any;
   setIsNotData: any;
 }
-
 const Filter = ({
   setDisplayPokemons,
   setIsLoadingMain,
