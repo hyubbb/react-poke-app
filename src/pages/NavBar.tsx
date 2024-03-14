@@ -142,7 +142,6 @@ const NavBar = () => {
   const provider = new GoogleAuthProvider();
 
   const handleAuth = () => {
-    console.log("handleAuth");
     const userInfo = signInWithPopup(auth, provider)
       .then((result) => {
         setUserData(result.user);
@@ -190,7 +189,11 @@ const NavBar = () => {
             <Login onClick={handleAuth}>login</Login>
           ) : (
             <SignOut>
-              {userData?.photoURL && <UserImg src={loginIcon} />}
+              {userData?.photoURL ? (
+                <UserImg src={loginIcon} />
+              ) : (
+                <UserImg src={loginIcon} />
+              )}
               <Dropdown>
                 <span onClick={handleLogOut}>logout</span>
               </Dropdown>

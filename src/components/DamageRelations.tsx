@@ -22,22 +22,24 @@ const DamageRelations = ({ damages }: DamageProps) => {
   const [damagePokemonForm, setDamagePokemonForm] =
     useState<SetDamagePokemonForm>();
 
+  const [damagePokemonTo, setDamagePokemonTo] =
+    useState<SetDamagePokemonForm>();
+
   useEffect(() => {
     const arrayDamage = damages.map((damage) => separateToAndFrom(damage));
 
     if (arrayDamage.length === 2) {
       // 합치는부분, valueOfKeyName 추가는 별도로
       const obj = joinDamageRelations(arrayDamage);
-      /** 
-        joinDamageRelations에서 복수의 속성을 하나의 속성으로 만들었으니
-        단수 속성처럼 postDamageValue함수로 valueOfKeyName 추가해주고,
-    */
+
       setDamagePokemonForm(reduceDuplicateValues(postDamageValue(obj.from)));
+      setDamagePokemonTo(reduceDuplicateValues(postDamageValue(obj.to)));
     } else {
       // 속성이 하나일때, valueOfKeyName 속성을 추가해준다.
-      setDamagePokemonForm(postDamageValue(arrayDamage[0].from));
+      setDamagePokemonForm(postDamageValue(arrayDamage[0]?.from));
+      setDamagePokemonTo(postDamageValue(arrayDamage[0]?.from));
     }
-  }, []);
+  }, [damages]);
 
   const joinDamageRelations = (props: DamageFromAndTo[]): DamageFromAndTo => {
     return {
@@ -171,9 +173,9 @@ const DamageRelations = ({ damages }: DamageProps) => {
             {Object.entries(damagePokemonForm).map(
               ([key, value]: [string, Damage[]]) => {
                 const valueOfKeyName = {
-                  double_damage: "Weak",
-                  half_damage: "Resistant",
-                  no_damage: "immune",
+                  double_damage: "약함",
+                  half_damage: "강함",
+                  no_damage: "면역",
                 };
                 const keyName = key as keyof typeof damagePokemonForm;
                 return (

@@ -16,7 +16,9 @@ const DamageModal = ({ damages, setIsModalOpen }: DamageModalProps) => {
       <div className='modal bg-white rounded-lg w-1/2'>
         <div className='flex flex-col items-center p-4 ' ref={ref}>
           <div className='flex items-center w-full justify-between'>
-            <div className='text-gray-900 font-medium text-lg'>데미지 관계</div>
+            <div className='text-gray-900 font-medium text-lg'>
+              데미지 관계 (상성)
+            </div>
             <span
               className='text-gray-900 font-medium text-lg cursor-pointer'
               onClick={() => setIsModalOpen(false)}

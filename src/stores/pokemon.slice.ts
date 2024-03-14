@@ -6,6 +6,7 @@ type SearchType = {
   searchState: boolean;
   favorite: string[];
   pokemons: FormattedPokemonData[];
+  detail: FormattedPokemonData;
 };
 
 const initialState: SearchType = {
@@ -14,6 +15,7 @@ const initialState: SearchType = {
     ? JSON.parse(localStorage.getItem("favoritePokemons") || "")
     : [],
   pokemons: [],
+  detail: [],
 };
 
 export const pokemonSlice = createSlice({
@@ -25,6 +27,9 @@ export const pokemonSlice = createSlice({
     },
     allPokemons: (state, action) => {
       state.pokemons = action.payload;
+    },
+    addDetailPokemon: (state, action) => {
+      state.detail = action.payload;
     },
     addFavorite: (state, action) => {
       state.favorite.push(action.payload);
@@ -41,5 +46,10 @@ export const pokemonSlice = createSlice({
 });
 
 export default pokemonSlice.reducer;
-export const { searchStatus, addFavorite, removeFavorite, allPokemons } =
-  pokemonSlice.actions;
+export const {
+  searchStatus,
+  addFavorite,
+  removeFavorite,
+  allPokemons,
+  addDetailPokemon,
+} = pokemonSlice.actions;

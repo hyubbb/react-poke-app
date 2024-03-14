@@ -6,7 +6,7 @@
 
 import React, { useState, useRef } from "react";
 import { PokemonNameAndUrl } from "../types/PokemonData";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch } from "../hooks/redux";
 import { searchStatus } from "../stores/pokemon.slice";
 
 interface AutoCompleteProps {
@@ -18,63 +18,55 @@ const Autocomplete = ({
   allPokemons,
   setDisplayPokemons,
 }: AutoCompleteProps) => {
-  const [searchTerm, setSearchTerm] = useState<number | string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [keyIndex, setKeyIndex] = useState(-1);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const filterNames = (input: string | number) => {
-    const inputReDefine = redefineType(input);
-
-    const result = inputReDefine
-      ? allPokemons
-          .filter((e) => {
-            return typeof inputReDefine === "string"
-              ? e.koreanName.includes(inputReDefine)
-              : e.id.toString().includes(inputReDefine);
-          })
-          .sort()
-      : [];
+  const filterNames = (input: string) => {
+    const isNumber = redefineType(input);
+    const result =
+      input &&
+      allPokemons
+        .filter((e) => {
+          return isNumber
+            ? e.id.toString().includes(input)
+            : e.koreanName.includes(input);
+        })
+        .sort();
 
     return result;
   };
 
-  const redefineType = (value) => {
+  const redefineType = (value: string | number) => {
     // 숫자로 변환 가능한지 확인
-    const isNumber = !isNaN(value) && !isNaN(parseFloat(value));
-
+    const isNumber =
+      !isNaN(value as number) && !isNaN(parseFloat(value as string));
     // 숫자일 경우 숫자로 변환, 아니면 문자열 그대로 반환
-    return isNumber ? Number(value) : value.toLowerCase();
+    return isNumber || false;
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("handlesubmit");
-    dispatch(searchStatus(true));
-
-    let text = searchTerm.trim(); // 문자열 좌우 공백제거
+    let text = searchTerm.toString().trim(); // 문자열 좌우 공백제거
     if (keyIndex == -1 && searchTerm) {
       if (searchTerm !== "") setDisplayPokemons(filterNames(text));
+      dispatch(searchStatus(true));
       setSearchTerm("");
     }
   };
 
   const checkEqualName = (input: string) => {
     const filteredArray = filterNames(input);
-    // setKeyIndex(-1);
-    // console.log(filteredArray);
-    // filterNames의 리턴값이 배열이다. 잘 확인 할 것
-    // 검색한 값과 일치한 값이 있으면, autocomplete 보이지 않기
+
     return filteredArray[0]?.koreanName === input ? [] : filteredArray;
   };
 
   const autoRef = useRef<HTMLUListElement>(null);
-  //   const [liIndex, setLiIndex] = useState();
 
   const handleKeyArrow = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (checkEqualName(searchTerm).length > 0) {
       const pokeLength = checkEqualName(searchTerm).length;
-      // 데이터 갯수만큼 이상 keyindex가 늘어나지 않게
-      // 데이터가 2개면 keyindex 1까지만, 1개면 0까지
+
       if (e.code === "ArrowDown" && pokeLength - 1 > keyIndex) {
         setKeyIndex(keyIndex + 1);
       }
@@ -84,7 +76,6 @@ const Autocomplete = ({
       }
 
       if (e.code === "Enter" && keyIndex > -1) {
-        // handleSubmit
         setKeyIndex(-1);
         setSearchTerm(checkEqualName(searchTerm)[keyIndex].koreanName);
       }
@@ -124,7 +115,6 @@ const Autocomplete = ({
           <ul
             ref={autoRef}
             className={`w-40 max-h-[134px] py-1 bg-gray-700 rounded-lg absolute top-0 overflow-auto scrollbar-none`}
-            // className={`w-40 max-h-[134px] py-1 bg-gray-700 rounded-lg absolute top-0 overflow-auto`}
           >
             {checkEqualName(searchTerm).map((e, i) => (
               <li

@@ -1,3 +1,5 @@
+import { Species } from "./PokemonDetail";
+
 export interface FormattedPokemonData {
   id: number;
   name: string;
@@ -5,12 +7,13 @@ export interface FormattedPokemonData {
   koreanName: string;
   weight: number;
   height: number;
-  previous: string | undefined;
-  next: string | undefined;
+  previous: number | undefined;
+  next: number | undefined;
   abilities: string[];
   stats: Stat[];
   DamageRelations: DamageRelation[];
-  types: string[];
+  type: string;
+  types: Species[];
   sprites: Array<string[]>;
   description: string;
 }

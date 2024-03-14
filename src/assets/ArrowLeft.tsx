@@ -1,5 +1,3 @@
-// import { ClassNameProps } from "../types/ClassNameProps";
-
 import { ClassNameProps } from "../types/ClassNameProps";
 
 export const ArrowLeft = ({ className: CN }: ClassNameProps) => (

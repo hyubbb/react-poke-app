@@ -76,7 +76,7 @@ const PokeDex = ({ pokemon }: PokeData) => {
         </button>
         <Link
           to={`/pokemon/${pokemon?.name}`}
-          state={pokemon.koreanName}
+          state={{ id: pokemon.id }}
           className={`${bg} flex flex-col block box-border rounded-lg ${border} w-[15rem] h-[15rem] z-0 justify-between items-center`}
         >
           <div
@@ -94,6 +94,18 @@ const PokeDex = ({ pokemon }: PokeData) => {
             >
               <LazyImage url={img} alt={pokemon.name} />
             </div>
+          </div>
+          <div className='flex gap-2'>
+            {pokemon.types?.map((type, i) => {
+              return (
+                <div
+                  key={i}
+                  className={`text-xs text-white bg-${type.name} border-[1px] px-2 py-1 rounded-lg border-${type.name}`}
+                >
+                  {type.name.toUpperCase()}
+                </div>
+              );
+            })}
           </div>
           <div
             className={`bg-slate-800 w-full text-xs text-zinc-100 h-[1.5rem] rounded-b-lg uppercase font-medium pt-1 text-center`}

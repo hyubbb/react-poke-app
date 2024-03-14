@@ -9,6 +9,7 @@ import like from "../assets/img/pokeball1.png";
 import unLike from "../assets/img/pokeball2.png";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { addFavorite, removeFavorite } from "../stores/pokemon.slice";
+import { FormattedPokemonData } from "../types/FormattedPokemonData";
 interface PokeData {
   id: number;
   types: string;
@@ -17,52 +18,30 @@ interface PokeData {
   koreanName: string;
 }
 
-const PokeCard = ({ pokemons }) => {
+interface PokeCardProps {
+  pokemons: FormattedPokemonData;
+  name: string;
+}
+
+const PokeCard = ({ pokemons, name }: PokeCardProps) => {
   const { favorite } = useAppSelector((state) => state.pokemon);
-  const [pokemon, setPokemon] = useState<PokeData>(pokemons);
-  // const { pokemons } = useAppSelector((state) => state.pokemon);
-  const favMatching = favorite.find((fav) => {
+  const [pokemon, setPokemon] = useState<FormattedPokemonData>(pokemons);
+  const favMatching = favorite.find((fav: PokeData) => {
     return fav.name === name;
   });
   const dispatch = useAppDispatch();
   useEffect(() => {
-    // fetchPokeDetailData();
     setPokemon(pokemons);
-    console.log("PokeCard");
   }, [pokemons]);
-
-  // const fetchPokeDetailData = async () => {
-  //   try {
-  //     const response = await axios.get(url);
-  //     const pokemonData = formatPokemonData(response.data);
-  //     setPokemon(pokemonData);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  // const formatPokemonData = (params: PokemonDetail) => {
-  //   const { id, types, name } = params;
-
-  //   const pokeData: PokeData = {
-  //     ...params,
-  //     url,
-  //     koreanName: koreanName ? koreanName : name,
-  //     type: types[0].type.name,
-  //   };
-
-  //   return pokeData;
-  // };
 
   const favoriteHandler = () => {
     favMatching
       ? dispatch(removeFavorite(pokemon))
       : dispatch(addFavorite(pokemon));
   };
-  const bg = `bg-${pokemon?.types[0]}`;
-  const border = `border-${pokemon?.types[0]}`;
-  const text = `text-${pokemon?.types[0]}`;
-  // const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`;
+  const bg = `bg-${pokemon?.type}`;
+  const border = `border-${pokemon?.type}`;
+  const text = `text-${pokemon?.type}`;
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon?.id}.png`;
   return (
     <>
@@ -81,7 +60,7 @@ const PokeCard = ({ pokemons }) => {
           </button>
           <Link
             to={`/pokemon/${pokemon?.name}`}
-            state={pokemon.koreanName}
+            state={{ id: pokemon.id }}
             className={`block box-border rounded-lg ${border} w-[8.5rem] h-[8.5rem] z-0 bg-slate-800 justify-between items-center`}
           >
             <div
@@ -94,12 +73,6 @@ const PokeCard = ({ pokemons }) => {
                 className={`box-border relative flex w-full h-[5.5rem] basis justify-center items-center `}
               >
                 <LazyImage url={img} alt={name} />
-                {/* <img
-                src={img}
-                alt={name}
-                width='100%'
-                className={`object-contain h-full`}
-              /> */}
               </div>
             </div>
             <div
