@@ -17,13 +17,11 @@ interface FilterProps {
 
 const Filter = ({
   setDisplayPokemons,
-  filterDisplayedPokemonData,
   setIsLoadingMain,
   allPokemons,
   setIsNotData,
 }: FilterProps) => {
   const [filterList, setFilterList] = useState<koFilterName[]>([]);
-  // type by type usestate
 
   const dispatch = useDispatch();
 
@@ -35,7 +33,6 @@ const Filter = ({
     try {
       const response = await axios.get(`https://pokeapi.co/api/v2/type/`);
       const urls = response.data.results.map((type: Species) => type.url);
-
       const result = await Promise.all(
         urls.map((url: string) => koTypeName(url))
       );
