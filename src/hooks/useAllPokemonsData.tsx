@@ -8,6 +8,8 @@ import {
 } from "../types/PokemonDescription";
 import { useDispatch } from "react-redux";
 import { allPokemons } from "../stores/pokemon.slice";
+import PokemonAllData from "../utils/AllDatas";
+// import PokemonAllData from "../utils/AllDaTas";
 
 const useAllPokemonsData = () => {
   const [pokemon, setPokemon] = useState<FormattedPokemonData[]>([]);
@@ -27,43 +29,45 @@ const useAllPokemonsData = () => {
 
   const fetchAllPokemons = async () => {
     try {
-      const url = `https://pokeapi.co/api/v2/pokemon/?limit=1025&offset=0`;
-      const pokemonListResponse = await axios.get(url);
-      const pokemonList = pokemonListResponse.data.results;
+      // const url = `https://pokeapi.co/api/v2/pokemon/?limit=1025&offset=0`;
+      // const pokemonListResponse = await axios.get(url);
+      // const pokemonList = pokemonListResponse.data.results;
       // console.log(pokemonList);
-      const pokemonDataPromises = await Promise.all(
-        pokemonList.map(async (pokemon: FormattedPokemonData) => {
-          const { data: pokemonData } = await axios.get<PokemonDetail>(
-            pokemon.url
-          );
-          const { name, id, types, weight, height, stats, abilities, sprites } =
-            pokemonData;
+      // const pokemonDataPromises = await Promise.all(
+      //   pokemonList.map(async (pokemon: FormattedPokemonData) => {
+      //     const { data: pokemonData } = await axios.get<PokemonDetail>(
+      //       pokemon.url
+      //     );
+      //     const { name, id, types, weight, height, stats, abilities, sprites } =
+      //       pokemonData;
 
-          // // detail정보를 위한 데이터 가공
-          const formattedPokemonData: FormattedPokemonData = {
-            id,
-            name,
-            url: pokemon.url,
-            koreanName: await pokemonKoreanName(id, name),
-            weight: weight / 10,
-            height: height / 10,
-            previous: id - 1 === 0 ? 1 : id - 1,
-            next: id + 1,
-            abilities: formatPokemonAbilities(abilities),
-            stats: formatPokemonStats(stats),
-            DamageRelations: [],
-            type: types[0].type.name,
-            types: types.map((type) => type.type),
-            sprites: formatPokemonSprites(sprites),
-            description: await formatPokemonDescription(name),
-          };
-          return formattedPokemonData;
-        })
-      );
-
-      setPokemon(pokemonDataPromises);
-      localStorage.setItem("pokemonData", JSON.stringify(pokemonDataPromises));
-      dispatch(allPokemons(pokemonDataPromises));
+      //     // // detail정보를 위한 데이터 가공
+      //     const formattedPokemonData: FormattedPokemonData = {
+      //       id,
+      //       name,
+      //       url: pokemon.url,
+      //       koreanName: await pokemonKoreanName(id, name),
+      //       weight: weight / 10,
+      //       height: height / 10,
+      //       previous: id - 1 === 0 ? 1 : id - 1,
+      //       next: id + 1,
+      //       abilities: formatPokemonAbilities(abilities),
+      //       stats: formatPokemonStats(stats),
+      //       DamageRelations: [],
+      //       type: types[0].type.name,
+      //       types: types.map((type) => type.type),
+      //       sprites: formatPokemonSprites(sprites),
+      //       description: await formatPokemonDescription(name),
+      //     };
+      //     return formattedPokemonData;
+      //   })
+      // );
+      // setPokemon(pokemonDataPromises);
+      // localStorage.setItem("pokemonData", JSON.stringify(pokemonDataPromises));
+      // dispatch(allPokemons(pokemonDataPromises));
+      setPokemon(PokemonAllData);
+      localStorage.setItem("pokemonData", JSON.stringify(PokemonAllData));
+      dispatch(allPokemons(PokemonAllData));
     } catch (error) {
       console.log("에러 : " + error);
     }
