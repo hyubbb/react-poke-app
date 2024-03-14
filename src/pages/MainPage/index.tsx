@@ -3,7 +3,11 @@ import axios from "axios";
 import PokeCard from "../../components/PokeCard";
 import Autocomplete from "../../components/Autocomplete";
 import { PokemonData, PokemonNameAndUrl } from "../../types/PokemonData";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { searchStatus } from "../../stores/pokemon.slice";
 import Filter from "../../components/Filter";
@@ -12,59 +16,61 @@ import useAllPokemonsData from "../../hooks/useAllPokemonsData";
 import NotData from "../../components/NotData";
 import { FormattedPokemonData } from "../../types/FormattedPokemonData";
 
+interface fetchDataType {
+  data: FormattedPokemonData[];
+  page: number;
+}
+
 function MainPage() {
   const dispatch = useAppDispatch();
   const [allPokemons, setAllPokemons] = useState<FormattedPokemonData[]>([]);
   const getAllPokemonsData = useAllPokemonsData();
-  const [listPokemon, setListPokemon] = useState<PokemonNameAndUrl[]>([]);
-  const [displayPokemons, setDisplayPokemons] = useState<PokemonNameAndUrl[]>(
-    []
-  );
+  const [listPokemon, setListPokemon] = useState<FormattedPokemonData[]>([]);
+  const [displayPokemons, setDisplayPokemons] = useState<
+    FormattedPokemonData[]
+  >([]);
   const [isLoadingMain, setIsLoadingMain] = useState<boolean>(false);
   const [isNotData, setIsNotData] = useState<boolean>(false);
   const { searchState } = useAppSelector((state) => state.pokemon);
 
-  const fetchPage = useCallback(
-    (page: number) => {
-      const itemsPerPage = 20; // 페이지 당 아이템 수
-      const startIndex = page * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const currentPageData = getAllPokemonsData.slice(0, endIndex);
-      const result = { page, data: [...currentPageData] };
-      if (page == 0 && currentPageData.length > 0) {
-        fetchPokeData(result);
-      }
-      return result;
-    },
-    [getAllPokemonsData]
-  );
+  const queryClient = useQueryClient();
+
+  useEffect(() => setAllPokemons(getAllPokemonsData), [getAllPokemonsData]);
+
+  const fetchPage = (page: number) => {
+    const itemsPerPage = 20; // 페이지 당 아이템 수
+    const startIndex = page * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentPageData = allPokemons.slice(0, endIndex);
+    const result = { page, data: [...currentPageData] };
+
+    return result;
+  };
+
+  const isDataLoaded = useMemo(() => allPokemons.length > 0, [allPokemons]);
 
   const {
+    data: fetchData,
     fetchNextPage,
     hasNextPage,
-    data: fetchData,
   } = useInfiniteQuery({
     queryKey: ["pokemonData"],
-    queryFn: ({ pageParam }) => fetchPage(pageParam),
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages, lastPageParam) => {
-      return lastPageParam + 1;
-    },
+    queryFn: ({ pageParam = 0 }) => fetchPage(pageParam),
+    getNextPageParam: (lastPage, allPages) => lastPage.page + 1,
+    enabled: isDataLoaded, // 쿼리 실행 조건
   });
 
   useEffect(() => {
-    if (getAllPokemonsData.length) {
-      setAllPokemons(getAllPokemonsData);
-      fetchPage(0);
-    }
-  }, [getAllPokemonsData]);
-
-  useEffect(() => {
     if (fetchData) {
-      const fetchPokemons = fetchData?.pages[fetchData?.pages.length - 1];
-      fetchPokemons.data.length && fetchPokeData(fetchPokemons);
+      fetchDataFunc();
     }
   }, [fetchData]);
+
+  const fetchDataFunc = () => {
+    const fetchPokemons = fetchData?.pages[fetchData?.pages.length - 1];
+    fetchPokeData(fetchPokemons);
+  };
 
   const pokemonKoreanName = async (pokeNum: number, pokeName: string) => {
     try {
@@ -104,31 +110,34 @@ function MainPage() {
     []
   );
 
-  const fetchPokeData = async ({ data: fetchPokemons }: PokemonData) => {
+  const fetchPokeData = async ({ data: fetchPokemons }: fetchDataType) => {
     if (fetchPokemons.length > 0) {
-      if (searchState) {
-        listPokemon.length === 0 && setListPokemon(fetchPokemons);
-        setDisplayPokemons(fetchPokemons);
-        setIsLoadingMain(false);
-        dispatch(searchStatus(false));
-      } else {
-        if (listPokemon.length > 0) {
-          setDisplayPokemons(listPokemon);
-          setListPokemon([]);
-        } else {
-          setDisplayPokemons(fetchPokemons);
-        }
-      }
+      dispatch(searchStatus(false));
+      setDisplayPokemons(fetchPokemons);
+      setIsLoadingMain(false);
     }
+    // if (searchState) {
+    //   listPokemon.length === 0 && setListPokemon(fetchPokemons);
+    //   setDisplayPokemons(fetchPokemons);
+    //   setIsLoadingMain(false);
+    //   dispatch(searchStatus(false));
+    // } else {
+    //   if (listPokemon.length > 0) {
+    //     setDisplayPokemons(listPokemon);
+    //     setListPokemon([]);
+    //   } else {
+    //     setDisplayPokemons(fetchPokemons);
+    //   }
+    // }
   };
 
   const backHandler = () => {
     if (searchState) {
-      const listedData = fetchData?.pages[[fetchData?.pages.length - 1]];
-      setDisplayPokemons(listPokemon);
       setIsLoadingMain(false);
       dispatch(searchStatus(false));
-      fetchPokeData(listedData);
+      const queryData = queryClient.getQueryData(["pokemonData"]).pages;
+      const { data: lastData } = queryData[queryData.length - 1];
+      setDisplayPokemons(lastData);
     } else {
       fetchNextPage();
     }

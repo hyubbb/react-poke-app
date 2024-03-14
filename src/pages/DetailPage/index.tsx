@@ -9,7 +9,6 @@ import { Balance } from "../../assets/Balance";
 import { Vector } from "../../assets/Vector";
 import Type from "../../components/Type";
 import BaseStat from "../../components/BaseStat";
-import DamageModal from "../../components/DamageModal";
 import { FormattedPokemonData } from "../../types/FormattedPokemonData";
 
 import { DamageRelationsOfType } from "../../types/DamageRelationsOfType";
@@ -17,7 +16,6 @@ import {
   FlavorTextEntry,
   PokemonDescription,
 } from "../../types/PokemonDescription";
-import { PokemonData } from "../../types/PokemonData";
 import NotData from "../../components/NotData";
 import DamageRelations from "../../components/DamageRelations";
 import { useAppDispatch } from "../../hooks/redux";
@@ -58,7 +56,6 @@ const DetailPage = () => {
             return type.data.damage_relations;
           })
         );
-        console.log(DamageRelations);
         // detail정보를 위한 데이터 가공
 
         const formattedPokemonData: FormattedPokemonData = {

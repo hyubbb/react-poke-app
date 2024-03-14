@@ -179,13 +179,13 @@ const NavBar = () => {
         </Logo>
 
         <div className='flex gap-[30px] justify-center items-center'>
-          {userData && (
-            <div className='text-[40px]'>
-              <Link to={"/pokedex"}>
-                <img src={fav} alt='' width={50} />
-              </Link>
-            </div>
-          )}
+          {/* {userData && ( */}
+          <div className='text-[40px]'>
+            <Link to={"/pokedex"}>
+              <img src={fav} alt='' width={50} />
+            </Link>
+          </div>
+          {/* )} */}
           {pathname === `/login` ? (
             <Login onClick={handleAuth}>login</Login>
           ) : (

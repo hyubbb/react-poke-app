@@ -81,7 +81,7 @@ const Filter = ({
         <ul className='max-w-[500px] flex gap-3 flex-wrap justify-center'>
           <li
             className='border-2 border-solid px-2 rounded-md cursor-pointer'
-            onClick={() => location.reload()}
+            onClick={() => setDisplayPokemons(allPokemons)}
           >
             전부
           </li>
