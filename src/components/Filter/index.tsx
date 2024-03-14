@@ -9,7 +9,6 @@ import { FormattedPokemonData } from "../../types/FormattedPokemonData";
 
 interface FilterProps {
   setDisplayPokemons: any;
-  filterDisplayedPokemonData: any;
   setIsLoadingMain: any;
   allPokemons: any;
   setIsNotData: any;

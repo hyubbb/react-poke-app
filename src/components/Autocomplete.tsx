@@ -8,10 +8,13 @@ import React, { useState, useRef } from "react";
 import { PokemonNameAndUrl } from "../types/PokemonData";
 import { useAppDispatch } from "../hooks/redux";
 import { searchStatus } from "../stores/pokemon.slice";
+import { FormattedPokemonData } from "../types/FormattedPokemonData";
 
 interface AutoCompleteProps {
-  allPokemons: PokemonNameAndUrl[];
-  setDisplayPokemons: React.Dispatch<React.SetStateAction<PokemonNameAndUrl[]>>;
+  allPokemons: FormattedPokemonData[];
+  setDisplayPokemons: React.Dispatch<
+    React.SetStateAction<FormattedPokemonData[]>
+  >;
 }
 
 const Autocomplete = ({
@@ -33,7 +36,6 @@ const Autocomplete = ({
             : e.koreanName.includes(input);
         })
         .sort();
-
     return result;
   };
 
@@ -47,24 +49,31 @@ const Autocomplete = ({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let text = searchTerm.toString().trim(); // 문자열 좌우 공백제거
+    let text: string = searchTerm.toString().trim(); // 문자열 좌우 공백제거
     if (keyIndex == -1 && searchTerm) {
-      if (searchTerm !== "") setDisplayPokemons(filterNames(text));
-      dispatch(searchStatus(true));
-      setSearchTerm("");
+      if (searchTerm !== "") {
+        if (filterNames(text).length) {
+          setDisplayPokemons(filterNames(text) as FormattedPokemonData[]);
+          dispatch(searchStatus(true));
+          setSearchTerm("");
+        } else {
+          console.log(4);
+          e.stopPropagation();
+        }
+      }
     }
   };
 
   const checkEqualName = (input: string) => {
-    const filteredArray = filterNames(input);
-
+    if (input === "") return [];
+    const filteredArray: FormattedPokemonData[] = filterNames(input);
     return filteredArray[0]?.koreanName === input ? [] : filteredArray;
   };
 
   const autoRef = useRef<HTMLUListElement>(null);
 
   const handleKeyArrow = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (checkEqualName(searchTerm).length > 0) {
+    if (checkEqualName(searchTerm).length) {
       const pokeLength = checkEqualName(searchTerm).length;
 
       if (e.code === "ArrowDown" && pokeLength - 1 > keyIndex) {
@@ -103,7 +112,6 @@ const Autocomplete = ({
         </button>
       </form>
 
-      {/* 검색한 결과값이 있을때만 보여주기 */}
       {checkEqualName(searchTerm).length > 0 && (
         <div
           className={`w-full flex bottom-0 h-0 flex-col absolute justify-center items-center translate-y-2`}
@@ -116,18 +124,22 @@ const Autocomplete = ({
             ref={autoRef}
             className={`w-40 max-h-[134px] py-1 bg-gray-700 rounded-lg absolute top-0 overflow-auto scrollbar-none`}
           >
-            {checkEqualName(searchTerm).map((e, i) => (
-              <li
-                key={`${i}`}
-                className={
-                  `text-base w-full px-2  text-white hover:bg-gray-600 ` +
-                  (keyIndex === i ? `${i} bg-neutral-600` : i)
-                }
-                onClick={() => setSearchTerm(e.koreanName)}
-              >
-                {e.koreanName}
-              </li>
-            ))}
+            {checkEqualName(searchTerm).map(
+              (e: FormattedPokemonData, i: number) => (
+                <li
+                  key={`${i}`}
+                  className={
+                    `text-base w-full px-2  text-white hover:bg-gray-600 ` +
+                    (keyIndex === i
+                      ? `${e.koreanName} bg-neutral-600`
+                      : e.koreanName)
+                  }
+                  onClick={() => setSearchTerm(e.koreanName)}
+                >
+                  {e.koreanName}
+                </li>
+              )
+            )}
           </ul>
         </div>
       )}

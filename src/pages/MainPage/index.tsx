@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { useEffect, useMemo, useState } from "react";
 import PokeCard from "../../components/PokeCard";
 import Autocomplete from "../../components/Autocomplete";
-import { PokemonData, PokemonNameAndUrl } from "../../types/PokemonData";
 import {
+  UseInfiniteQueryResult,
   useInfiniteQuery,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
@@ -25,7 +23,6 @@ function MainPage() {
   const dispatch = useAppDispatch();
   const [allPokemons, setAllPokemons] = useState<FormattedPokemonData[]>([]);
   const getAllPokemonsData = useAllPokemonsData();
-  const [listPokemon, setListPokemon] = useState<FormattedPokemonData[]>([]);
   const [displayPokemons, setDisplayPokemons] = useState<
     FormattedPokemonData[]
   >([]);
@@ -35,6 +32,9 @@ function MainPage() {
 
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    dispatch(searchStatus(false));
+  }, []);
   useEffect(() => setAllPokemons(getAllPokemonsData), [getAllPokemonsData]);
 
   const fetchPage = (page: number) => {
@@ -63,80 +63,26 @@ function MainPage() {
 
   useEffect(() => {
     if (fetchData) {
-      fetchDataFunc();
+      const fetchPokemons = fetchData.pages[fetchData.pages.length - 1];
+      fetchPokeData(fetchPokemons);
     }
   }, [fetchData]);
 
-  const fetchDataFunc = () => {
-    const fetchPokemons = fetchData?.pages[fetchData?.pages.length - 1];
-    fetchPokeData(fetchPokemons);
-  };
-
-  const pokemonKoreanName = async (pokeNum: number, pokeName: string) => {
-    try {
-      const response = await axios.get(
-        `https://pokeapi.co/api/v2/pokemon-species/${pokeNum}`
-      );
-      const koreanName =
-        response.data.names.find((name) => name.language.name === "ko")?.name ||
-        pokeName;
-      return koreanName;
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        console.log("데이터가 없는 포켓몬입니다.");
-        return pokeName;
-      } else {
-        console.log("데이터를 가져오는 중 오류가 발생했습니다.");
-      }
-    }
-  };
-
-  const filterDisplayedPokemonData = useCallback(
-    async (pokemonsData: PokemonNameAndUrl[]) => {
-      const promises = pokemonsData.map(async (poke) => {
-        const num = +poke.url.split("/")[6];
-        const koreanName = await pokemonKoreanName(num, poke.name);
-        const temp = {
-          ...poke,
-          num,
-          koreanName,
-        };
-        return temp;
-      });
-
-      const result = await Promise.all(promises);
-      return result;
-    },
-    []
-  );
-
-  const fetchPokeData = async ({ data: fetchPokemons }: fetchDataType) => {
-    if (fetchPokemons.length > 0) {
-      dispatch(searchStatus(false));
-      setDisplayPokemons(fetchPokemons);
-      setIsLoadingMain(false);
-    }
-    // if (searchState) {
-    //   listPokemon.length === 0 && setListPokemon(fetchPokemons);
-    //   setDisplayPokemons(fetchPokemons);
-    //   setIsLoadingMain(false);
-    //   dispatch(searchStatus(false));
-    // } else {
-    //   if (listPokemon.length > 0) {
-    //     setDisplayPokemons(listPokemon);
-    //     setListPokemon([]);
-    //   } else {
-    //     setDisplayPokemons(fetchPokemons);
-    //   }
-    // }
+  const fetchPokeData = ({ data: fetchPokemons }: fetchDataType) => {
+    setDisplayPokemons(fetchPokemons);
+    setIsLoadingMain(false);
   };
 
   const backHandler = () => {
     if (searchState) {
       setIsLoadingMain(false);
       dispatch(searchStatus(false));
-      const queryData = queryClient.getQueryData(["pokemonData"]).pages;
-      const { data: lastData } = queryData[queryData.length - 1];
+      const queryData = queryClient.getQueryData<
+        UseInfiniteQueryResult<fetchDataType, unknown>
+      >(["pokemonData"]);
+      const pages = queryData?.pages;
+      const lastPage = pages ? pages[pages.length - 1] : undefined;
+      const lastData = lastPage ? lastPage.data : [];
       setDisplayPokemons(lastData);
     } else {
       fetchNextPage();
@@ -161,7 +107,9 @@ function MainPage() {
 
   useEffect(() => {
     const handlePageLoad = () => {
-      const scrollNum = JSON.parse(localStorage.getItem("scrollNum"));
+      const data = localStorage.getItem("scrollNum");
+      const item = data ? JSON.parse(data) : null;
+      const scrollNum = JSON.parse(item);
       if (scrollNum) {
         const elm = document.getElementById(`pokemon_${scrollNum}`);
         if (elm) {
@@ -198,7 +146,6 @@ function MainPage() {
           <div className='flex mt-10 mb-6 px-3 justify-center'>
             <Filter
               setDisplayPokemons={setDisplayPokemons}
-              filterDisplayedPokemonData={filterDisplayedPokemonData}
               setIsLoadingMain={setIsLoadingMain}
               allPokemons={allPokemons}
               setIsNotData={setIsNotData}

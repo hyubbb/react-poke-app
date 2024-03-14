@@ -17,7 +17,10 @@ const useAllPokemonsData = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const cachedPokemonData = JSON.parse(localStorage.getItem("pokemonData"));
+    const cachedPokemonDataString = localStorage.getItem("pokemonData");
+    const cachedPokemonData = cachedPokemonDataString
+      ? JSON.parse(cachedPokemonDataString)
+      : null;
     if (cachedPokemonData) {
       console.log("localstorage data loaded!");
       setPokemon(cachedPokemonData);

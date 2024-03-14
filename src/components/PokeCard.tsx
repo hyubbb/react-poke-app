@@ -83,10 +83,6 @@ const PokeCard = ({ pokemons, name }: PokeCardProps) => {
           </Link>
         </div>
       )}
-      {/* <div>
-        <img src={img} alt='' />
-        {pokemon.name}
-      </div> */}
     </>
   );
 };

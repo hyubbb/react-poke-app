@@ -10,6 +10,7 @@ import { Vector } from "../../assets/Vector";
 import Type from "../../components/Type";
 import BaseStat from "../../components/BaseStat";
 import { FormattedPokemonData } from "../../types/FormattedPokemonData";
+import { Species } from "../../types/PokemonDetail";
 
 import { DamageRelationsOfType } from "../../types/DamageRelationsOfType";
 import {
@@ -30,9 +31,8 @@ const DetailPage = () => {
   const { id: pokeId } = location.state;
   const params = useParams() as { id: string };
   const pokeName = params.id;
-  const baseUrl = "https://pokeapi.co/api/v2/pokemon/";
   const item = localStorage.getItem("pokemonData");
-  const pokemons = item ? JSON.parse(item) : [];
+  const pokemons = item ? JSON.parse(item) : null;
   useEffect(() => {
     dispatch(searchStatus(true));
   }, []);
@@ -44,14 +44,16 @@ const DetailPage = () => {
 
   const fetchPokemonData = async () => {
     try {
-      const pokemonData = pokemons?.find((pokemon) => pokemon.id === pokeId);
+      const pokemonData = pokemons?.find(
+        ({ id }: { id: number }) => id === pokeId
+      );
 
       if (pokemonData) {
         const { id, types } = pokemonData;
 
         // 비동기작업 한꺼번에 처리 후 리턴,
         const DamageRelations = await Promise.all(
-          types.map(async (i) => {
+          types.map(async (i: Species) => {
             const type = await axios.get<DamageRelationsOfType>(i.url);
             return type.data.damage_relations;
           })
@@ -166,8 +168,8 @@ const DetailPage = () => {
         `}
           >
             <div className='flex items-center justify-center gap-4'>
-              {pokemon?.types?.map((type) => {
-                return <Type key={type.name} type={type.name} />;
+              {pokemon?.types?.map((type, idx) => {
+                return <Type key={idx} type={type} />;
               })}
             </div>
             <h2 className={`text-base font-semibold ${text} my-3`}>설명</h2>
@@ -199,10 +201,7 @@ const DetailPage = () => {
                   ability
                 </h4>
                 {pokemon.abilities.map((ability, i) => (
-                  <div
-                    key={ability}
-                    className='text-[1rem] text-zinc-100 capitalize'
-                  >
+                  <div key={i} className='text-[1rem] text-zinc-100 capitalize'>
                     {ability}
                   </div>
                 ))}
