@@ -26,10 +26,10 @@ interface PokeCardProps {
 const PokeCard = ({ pokemons, name }: PokeCardProps) => {
   const { favorite } = useAppSelector((state) => state.pokemon);
   const [pokemon, setPokemon] = useState<FormattedPokemonData>(pokemons);
-  const favMatching = favorite.find((fav: PokeData) => {
+  const dispatch = useAppDispatch();
+  const favMatching = favorite?.find((fav: PokeData) => {
     return fav.name === name;
   });
-  const dispatch = useAppDispatch();
   useEffect(() => {
     setPokemon(pokemons);
   }, [pokemons]);

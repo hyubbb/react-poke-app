@@ -78,16 +78,28 @@ const Autocomplete = ({
 
       if (e.code === "ArrowDown" && pokeLength - 1 > keyIndex) {
         setKeyIndex(keyIndex + 1);
+        moveDiv(keyIndex, 1);
       }
-
       if (e.code === "ArrowUp" && keyIndex > 0) {
         setKeyIndex(keyIndex - 1);
+        moveDiv(keyIndex, 3);
       }
 
       if (e.code === "Enter" && keyIndex > -1) {
         setKeyIndex(-1);
         setSearchTerm(checkEqualName(searchTerm)[keyIndex].koreanName);
       }
+      if (e.code === "Escape" && keyIndex > -1) {
+        setKeyIndex(-1);
+        setSearchTerm("");
+      }
+    }
+  };
+
+  const moveDiv = (keyIndex, num) => {
+    if (keyIndex > 1) {
+      const moveDiv = document.querySelector(".moveDiv");
+      moveDiv.style = `top:-${24 * (keyIndex - num)}px`;
     }
   };
 
@@ -122,24 +134,26 @@ const Autocomplete = ({
 
           <ul
             ref={autoRef}
-            className={`w-40 max-h-[134px] py-1 bg-gray-700 rounded-lg absolute top-0 overflow-auto scrollbar-none`}
+            className={`w-40 max-h-[125px] py-1 bg-gray-700 rounded-lg absolute top-0 overflow-auto scrollbar-none`}
           >
-            {checkEqualName(searchTerm).map(
-              (e: FormattedPokemonData, i: number) => (
-                <li
-                  key={`${i}`}
-                  className={
-                    `text-base w-full px-2  text-white hover:bg-gray-600 ` +
-                    (keyIndex === i
-                      ? `${e.koreanName} bg-neutral-600`
-                      : e.koreanName)
-                  }
-                  onClick={() => setSearchTerm(e.koreanName)}
-                >
-                  {e.koreanName}
-                </li>
-              )
-            )}
+            <div className='moveDiv relative'>
+              {checkEqualName(searchTerm).map(
+                (e: FormattedPokemonData, i: number) => (
+                  <li
+                    key={`${i}`}
+                    className={
+                      `text-base w-full px-2  text-white hover:bg-gray-600 ` +
+                      (keyIndex === i
+                        ? `${e.koreanName} bg-neutral-600`
+                        : e.koreanName)
+                    }
+                    onClick={() => setSearchTerm(e.koreanName)}
+                  >
+                    {e.koreanName}
+                  </li>
+                )
+              )}
+            </div>
           </ul>
         </div>
       )}

@@ -108,7 +108,7 @@ const PokeDex = ({ pokemon }: PokeData) => {
             })}
           </div>
           <div
-            className={`bg-slate-800 w-full text-xs text-zinc-100 h-[1.5rem] rounded-b-lg uppercase font-medium pt-1 text-center`}
+            className={`bg-slate-800 w-full text-md text-zinc-100 h-[2rem] rounded-b-lg font-medium pt-1 text-center`}
           >
             {pokemon.koreanName}
           </div>

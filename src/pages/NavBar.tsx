@@ -117,10 +117,7 @@ const NavBar = () => {
     };
   }, [pathname]);
 
-  // const UserDataFromStorage = localStorage.getItem("userData");
-  //  const initialUserData =  UserDataFromStorage ? JSON.parse(UserDataFromStorage) : null;
   const initialUserData = storage.get<User>("userData");
-  // JSON.parse는 string만 할수 있다. but localStorage.getItem은 null이 될 수도 있어서 에러.
 
   const [userData, setUserData] = useState<User | null>(initialUserData);
   const listener = () => {

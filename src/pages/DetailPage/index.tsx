@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { all } from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Loading } from "../../assets/Loading";
@@ -19,8 +19,8 @@ import {
 } from "../../types/PokemonDescription";
 import NotData from "../../components/NotData";
 import DamageRelations from "../../components/DamageRelations";
-import { useAppDispatch } from "../../hooks/redux";
-import { searchStatus } from "../../stores/pokemon.slice";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { searchStatus, setScrollNum } from "../../stores/pokemon.slice";
 
 const DetailPage = () => {
   const location = useLocation();
@@ -29,25 +29,22 @@ const DetailPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { id: pokeId } = location.state;
-  const params = useParams() as { id: string };
-  const pokeName = params.id;
-  const item = localStorage.getItem("pokemonData");
-  const pokemons = item ? JSON.parse(item) : null;
+  const { allPokemon } = useAppSelector((state) => state.pokemon);
+
   useEffect(() => {
     dispatch(searchStatus(true));
   }, []);
 
   useEffect(() => {
     fetchPokemonData();
-    localStorage.setItem("scrollNum", pokeId);
-  }, [pokeName]);
+    dispatch(setScrollNum(pokeId));
+  }, [pokeId, allPokemon]);
 
   const fetchPokemonData = async () => {
     try {
-      const pokemonData = pokemons?.find(
+      const pokemonData = allPokemon?.find(
         ({ id }: { id: number }) => id === pokeId
       );
-
       if (pokemonData) {
         const { id, types } = pokemonData;
 
@@ -59,7 +56,6 @@ const DetailPage = () => {
           })
         );
         // detail정보를 위한 데이터 가공
-
         const formattedPokemonData: FormattedPokemonData = {
           ...pokemonData,
           DamageRelations,
@@ -105,7 +101,6 @@ const DetailPage = () => {
     console.log(isLoading, pokemon);
     return <NotData />;
   }
-
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`;
   // console.log(pokemon.types?.[1]);
   const bg = `bg-${pokemon?.type}`;
@@ -150,7 +145,7 @@ const DetailPage = () => {
               </div>
             </div>
 
-            <div className='relative h-auto max-w-[15.5rem] z-20 mt-6 -mb-16'>
+            <div className='relative h-auto max-w-[20rem] z-20 mt-6 -mb-16'>
               <img
                 src={img}
                 width='100%'
@@ -241,8 +236,8 @@ const DetailPage = () => {
               이로치 폼
             </h2>
             <div className='flex justify-center flex-wrap my-3'>
-              {pokemon.sprites.reverse().map((sprite) => (
-                <img key={sprite[0]} src={sprite[1]} />
+              {[...pokemon.sprites].reverse().map((sprite) => (
+                <img key={sprite[0]} src={sprite[1]} width={150} />
               ))}
             </div>
           </section>

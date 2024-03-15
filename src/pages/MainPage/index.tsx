@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { searchStatus } from "../../stores/pokemon.slice";
+import { searchStatus, removeScrollNum } from "../../stores/pokemon.slice";
 import Filter from "../../components/Filter";
 import loading from "../../assets/img/loading.gif";
 import useAllPokemonsData from "../../hooks/useAllPokemonsData";
@@ -21,6 +21,7 @@ interface fetchDataType {
 
 function MainPage() {
   const dispatch = useAppDispatch();
+  const { searchState, scrollNum } = useAppSelector((state) => state.pokemon);
   const [allPokemons, setAllPokemons] = useState<FormattedPokemonData[]>([]);
   const getAllPokemonsData = useAllPokemonsData();
   const [displayPokemons, setDisplayPokemons] = useState<
@@ -28,8 +29,6 @@ function MainPage() {
   >([]);
   const [isLoadingMain, setIsLoadingMain] = useState<boolean>(false);
   const [isNotData, setIsNotData] = useState<boolean>(false);
-  const { searchState } = useAppSelector((state) => state.pokemon);
-
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -107,14 +106,11 @@ function MainPage() {
 
   useEffect(() => {
     const handlePageLoad = () => {
-      const data = localStorage.getItem("scrollNum");
-      const item = data ? JSON.parse(data) : null;
-      const scrollNum = JSON.parse(item);
       if (scrollNum) {
         const elm = document.getElementById(`pokemon_${scrollNum}`);
         if (elm) {
           elm.scrollIntoView({ behavior: "smooth", block: "start" });
-          localStorage.removeItem("scrollNum");
+          dispatch(removeScrollNum());
         }
       }
     };
