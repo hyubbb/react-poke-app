@@ -23,26 +23,26 @@ function MainPage() {
   const dispatch = useAppDispatch();
   const { searchState, scrollNum } = useAppSelector((state) => state.pokemon);
   const [allPokemons, setAllPokemons] = useState<FormattedPokemonData[]>([]);
-  const getAllPokemonsData = useAllPokemonsData();
   const [displayPokemons, setDisplayPokemons] = useState<
     FormattedPokemonData[]
   >([]);
   const [isLoadingMain, setIsLoadingMain] = useState<boolean>(false);
   const [isNotData, setIsNotData] = useState<boolean>(false);
+  const getAllPokemonsData = useAllPokemonsData();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     dispatch(searchStatus(false));
   }, []);
+
   useEffect(() => setAllPokemons(getAllPokemonsData), [getAllPokemonsData]);
 
-  const fetchPage = (page: number) => {
+  const fetchPage = async (page: number) => {
     const itemsPerPage = 20; // 페이지 당 아이템 수
     const startIndex = page * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentPageData = allPokemons.slice(0, endIndex);
     const result = { page, data: [...currentPageData] };
-
     return result;
   };
 

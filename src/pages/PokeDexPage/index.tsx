@@ -4,23 +4,13 @@ import PokeDex from "./PokeDex";
 import { PokemonDetail } from "../../types/PokemonDetail";
 import notPokemon from "../../assets/img/404.png";
 
-import { Link, useNavigate } from "react-router-dom";
 const PokedexPage = () => {
-  const { favorite } = useAppSelector((state) => state.pokemon);
   const [sortedData, setSortedData] = useState<PokemonDetail[]>([]);
-
-  const navigate = useNavigate();
-  const handle = () => {
-    if (window.location.pathname === "/") {
-      window.location.reload();
-    } else {
-      navigate(-1);
-    }
-  };
+  const { favorite } = useAppSelector((state) => state.pokemon);
 
   useEffect(() => {
     filterHandler("low");
-  }, []);
+  }, [favorite]);
 
   const filterHandler = (type: string) => {
     if (type === "low") {

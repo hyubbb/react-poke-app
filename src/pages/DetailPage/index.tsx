@@ -10,7 +10,7 @@ import { Vector } from "../../assets/Vector";
 import Type from "../../components/Type";
 import BaseStat from "../../components/BaseStat";
 import { FormattedPokemonData } from "../../types/FormattedPokemonData";
-import { Species } from "../../types/PokemonDetail";
+import { Ability, Species, Sprites } from "../../types/PokemonDetail";
 
 import { DamageRelationsOfType } from "../../types/DamageRelationsOfType";
 import {
@@ -46,8 +46,7 @@ const DetailPage = () => {
         ({ id }: { id: number }) => id === pokeId
       );
       if (pokemonData) {
-        const { id, types } = pokemonData;
-
+        const { types, sprites, name, abilities } = pokemonData;
         // 비동기작업 한꺼번에 처리 후 리턴,
         const DamageRelations = await Promise.all(
           types.map(async (i: Species) => {
@@ -55,11 +54,13 @@ const DetailPage = () => {
             return type.data.damage_relations;
           })
         );
+
         // detail정보를 위한 데이터 가공
         const formattedPokemonData: FormattedPokemonData = {
           ...pokemonData,
           DamageRelations,
-          description: await formatPokemonDescription(id),
+
+          description: await formatPokemonDescription(name),
         };
 
         setPokemon(formattedPokemonData);
@@ -71,16 +72,6 @@ const DetailPage = () => {
     }
   };
 
-  const formatPokemonDescription = async (id: number): Promise<string> => {
-    const url = `https://pokeapi.co/api/v2/pokemon-species/${id}/`;
-
-    const { data: pokemonSpecies } = await axios.get<PokemonDescription>(url);
-    const result: string[] = filterFormatDescription(
-      pokemonSpecies.flavor_text_entries
-    );
-    return result[Math.floor(Math.random() * result.length)];
-  };
-
   const filterFormatDescription = (flavorText: FlavorTextEntry[]): string[] => {
     const koreanDescripiton = flavorText
       ?.filter((text: FlavorTextEntry) => text.language.name == "ko")
@@ -88,6 +79,27 @@ const DetailPage = () => {
         text.flavor_text.replace(/\r|\n|\f/g, " ")
       );
     return koreanDescripiton;
+  };
+
+  const formatPokemonAbilities = (abilities: Ability[]) => {
+    return abilities
+      .filter((_, i) => i <= 1)
+      .map((obj: Ability) => obj.ability.name.replaceAll("-", " "));
+  };
+
+  const formatPokemonDescription = async (
+    id: number | string
+  ): Promise<string> => {
+    const url = `https://pokeapi.co/api/v2/pokemon-species/${id}/`;
+    try {
+      const { data: pokemonSpecies } = await axios.get<PokemonDescription>(url);
+      const result: string[] = filterFormatDescription(
+        pokemonSpecies.flavor_text_entries
+      );
+      return result[Math.floor(Math.random() * result.length)];
+    } catch (error) {
+      return "";
+    }
   };
 
   if (isLoading) {

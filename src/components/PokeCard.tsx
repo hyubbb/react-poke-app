@@ -1,10 +1,6 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import LazyImage from "./LazyImage";
-import { Link, json } from "react-router-dom";
-import { PokemonNameAndUrl } from "../types/PokemonData";
-import { PokemonDetail } from "../types/PokemonDetail";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import like from "../assets/img/pokeball1.png";
 import unLike from "../assets/img/pokeball2.png";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
@@ -27,12 +23,16 @@ const PokeCard = ({ pokemons, name }: PokeCardProps) => {
   const { favorite } = useAppSelector((state) => state.pokemon);
   const [pokemon, setPokemon] = useState<FormattedPokemonData>(pokemons);
   const dispatch = useAppDispatch();
-  const favMatching = favorite?.find((fav: PokeData) => {
-    return fav.name === name;
-  });
+  const [favMatching, setFavMatching] = useState();
+
+  // = favorite?.find((fav: PokeData) => {
+  //   return fav.name === name;
+  // });
+
   useEffect(() => {
     setPokemon(pokemons);
-  }, [pokemons]);
+    setFavMatching(favorite?.find((fav: PokeData) => fav.name === name));
+  }, [pokemons, favorite]);
 
   const favoriteHandler = () => {
     favMatching

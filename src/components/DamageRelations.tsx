@@ -186,7 +186,7 @@ const DamageRelations = ({ damages }: DamageProps) => {
                     <h3 className='pb-2'>{valueOfKeyName[keyName]}</h3>
                     <div className='flex flex-wrap gap-1 justify-center'>
                       {value.length > 0 ? (
-                        value.map(({ name, url, damageValue }) => {
+                        value?.map(({ name, url, damageValue }) => {
                           return (
                             <Type
                               type={name}
