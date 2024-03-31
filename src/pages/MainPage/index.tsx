@@ -7,7 +7,11 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { searchStatus, removeScrollNum } from "../../stores/pokemon.slice";
+import {
+  searchStatus,
+  removeScrollNum,
+  getFavorite,
+} from "../../stores/pokemon.slice";
 import Filter from "../../components/Filter";
 import loading from "../../assets/img/loading.gif";
 import useAllPokemonsData from "../../hooks/useAllPokemonsData";
@@ -33,6 +37,7 @@ function MainPage() {
 
   useEffect(() => {
     dispatch(searchStatus(false));
+    dispatch(getFavorite());
   }, []);
 
   useEffect(() => setAllPokemons(getAllPokemonsData), [getAllPokemonsData]);

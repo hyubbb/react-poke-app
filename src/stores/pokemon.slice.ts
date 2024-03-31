@@ -2,35 +2,32 @@ import { createSlice, current } from "@reduxjs/toolkit";
 import { PokemonData } from "../types/PokemonData";
 import { FormattedPokemonData } from "../types/FormattedPokemonData";
 
+interface favType extends FormattedPokemonData {
+  uId: string;
+}
+
 type SearchType = {
   searchState: boolean;
-  favorite: string[];
+  favorite: FormattedPokemonData[];
   allPokemon: FormattedPokemonData[];
   scrollNum: number;
 };
 
-const favCheckUser = () => {
-  const userData = localStorage.getItem("userData");
-  const user = userData ? JSON.parse(userData).email : [];
-  const favData = localStorage.getItem("favoritePokemons");
-  const fav = favData ? JSON.parse(favData) : [];
-
-  const match = fav?.filter((pokemon) => {
-    return pokemon.uId == user;
-  });
-  return match;
-};
-
 const initialState: SearchType = {
   searchState: false,
-  // favorite: localStorage.getItem("favoritePokemons")
-  //   ? JSON.parse(localStorage.getItem("favoritePokemons") || "")
-  //   : [],
-  favorite: favCheckUser(),
+  favorite: [],
   allPokemon: localStorage.getItem("allPokemon")
     ? JSON.parse(localStorage.getItem("allPokemon") || "")
     : [],
   scrollNum: 0,
+};
+
+const storageData = () => {
+  const userData = localStorage.getItem("userData");
+  const user = userData ? JSON.parse(userData).email : [];
+  const favData = localStorage.getItem("favoritePokemons");
+  const fav = favData ? (JSON.parse(favData) as favType[]) : [];
+  return { fav, user };
 };
 
 export const pokemonSlice = createSlice({
@@ -48,32 +45,30 @@ export const pokemonSlice = createSlice({
     removeAllPokemons: (state, action) => {
       state.allPokemon = action.payload;
     },
-
+    getFavorite: (state, action) => {
+      const { fav, user } = storageData();
+      state.favorite = fav?.filter(({ uId }) => uId === user);
+    },
     addFavorite: (state, action) => {
-      const userData = localStorage.getItem("userData");
-      const user = userData ? JSON.parse(userData).email : [];
-      const favData = localStorage.getItem("favoritePokemons");
-      const fav = favData ? JSON.parse(favData) : [];
+      const { fav, user } = storageData();
 
       const newStorageData = [...fav, { ...action.payload, uId: user }];
       state.favorite.push(action.payload);
       localStorage.setItem("favoritePokemons", JSON.stringify(newStorageData));
     },
     removeFavorite: (state, action) => {
-      //즐겨차직 다 지우고, 로컬스토리지를 fav[id] 형식으로 만들어서 생성, 삭제 마다 fav[id]값 불러와서ㅓ 해결
+      const { fav, user } = storageData();
+      const userFavPoke = current(state.favorite);
 
-      const favData = localStorage.getItem("favoritePokemons");
-      const fav = favData ? JSON.parse(favData) : [];
-
-      // state.favorite = state.favorite.filter(
-      //   (pokemon) => pokemon.name !== action.payload.name
-      // );
-
-      state.favorite = fav.filter(
-        (pokemon: PokemonData) => pokemon.name !== action.payload.name
+      state.favorite = userFavPoke.filter(
+        (pokemon: FormattedPokemonData) => pokemon.name !== action.payload.name
+      );
+      const newStorageData = fav.filter(
+        (pokemon: favType) =>
+          !(pokemon.name === action.payload.name && pokemon.uId === user)
       );
 
-      localStorage.setItem("favoritePokemons", JSON.stringify(state.favorite));
+      localStorage.setItem("favoritePokemons", JSON.stringify(newStorageData));
     },
     setScrollNum: (state, action) => {
       state.scrollNum = action.payload;
@@ -89,6 +84,7 @@ export const pokemonSlice = createSlice({
 export default pokemonSlice.reducer;
 export const {
   searchStatus,
+  getFavorite,
   addFavorite,
   removeFavorite,
   setAllPokemons,
