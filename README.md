@@ -1,6 +1,11 @@
 # 포켓몬 데이터 검색 플랫폼
 <br/>
 
+
+![2024-03-2112 20 04-ezgif com-video-to-gif-converter](https://github.com/hyubbb/react-poke-app/assets/32926006/33ee22cd-7602-4610-8e9c-0d73d6398eed)
+
+
+
 ### 설명
 - 개발 기술을 활용하기 위하여 포켓몬 데이터 검색 플랫폼 개발.
 - React와 typescript, tailwindcss를 사용해서 만든 간단한 프로젝트.
