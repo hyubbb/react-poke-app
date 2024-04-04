@@ -1,6 +1,8 @@
 # 포켓몬 데이터 검색 플랫폼
 <br/>
 
+https://pokeapp-hyub.netlify.app/
+<br/>
 
 ![2024-03-2112 20 04-ezgif com-video-to-gif-converter](https://github.com/hyubbb/react-poke-app/assets/32926006/33ee22cd-7602-4610-8e9c-0d73d6398eed)
 
