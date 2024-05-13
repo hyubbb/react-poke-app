@@ -196,7 +196,6 @@ const NavBar = () => {
                 <span onClick={handleLogOut}>logout</span>
               </Dropdown>
             </SignOut>
-            // ""
           )}
         </div>
       </NavWrapper>

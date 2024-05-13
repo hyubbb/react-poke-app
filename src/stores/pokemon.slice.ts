@@ -45,7 +45,7 @@ export const pokemonSlice = createSlice({
     removeAllPokemons: (state, action) => {
       state.allPokemon = action.payload;
     },
-    getFavorite: (state, action) => {
+    getFavorite: (state) => {
       const { fav, user } = storageData();
       state.favorite = fav?.filter(({ uId }) => uId === user);
     },

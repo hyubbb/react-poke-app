@@ -19,7 +19,7 @@ export interface PokemonDetail {
   sprites: Sprites;
   stats: Stat[];
   type: string;
-  types: Type[];
+  types: Species[];
   url: string;
   weight: number;
 }

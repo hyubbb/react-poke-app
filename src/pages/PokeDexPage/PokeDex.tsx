@@ -5,16 +5,20 @@ import { useAppSelector } from "../../hooks/redux";
 import like from "../../assets/img/pokeball1.png";
 import unLike from "../../assets/img/pokeball2.png";
 import { useDispatch } from "react-redux";
-import { addFavorite, removeFavorite } from "../../stores/pokemon.slice";
-import { PokemonDetail } from "../../types/PokemonDetail";
+import {
+  addFavorite,
+  getFavorite,
+  removeFavorite,
+} from "../../stores/pokemon.slice";
+import { PokemonDetail, Species } from "../../types/PokemonDetail";
 
 interface PokeData {
   pokemon: PokemonDetail;
 }
 
 const PokeDex = ({ pokemon }: PokeData) => {
-  const boxRef = useRef(null);
-  const overlayRef = useRef(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const { favorite } = useAppSelector((state) => state.pokemon);
   const dispatch = useDispatch();
 
@@ -24,11 +28,12 @@ const PokeDex = ({ pokemon }: PokeData) => {
 
   useEffect(() => {
     // boxRef.current는 실제 DOM 요소를 가리킵니다.
-    const box = boxRef.current;
-    const overlay = overlayRef.current;
+    let box = boxRef.current;
+    let overlay = overlayRef.current;
     if (!box) return;
+    if (!overlay) return;
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent): void => {
       const boxRect = box.getBoundingClientRect(); // 부모 요소의 위치와 크기 정보
       const x = e.pageX - window.scrollX - boxRect.left; // 페이지 내 위치에서 스크롤 위치와 부모 요소의 왼쪽 경계를 뺀 값
       const y = e.pageY - window.scrollY - boxRect.top; // 페이지 내 위치에서 스크롤 위치와 부모 요소의 상단 경계를 뺀 값
@@ -36,13 +41,13 @@ const PokeDex = ({ pokemon }: PokeData) => {
       const rotateX = (1 / 6) * y - 20;
       const rotateY = (-1 / 6) * x + 20;
 
-      box.style = `transform: perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg);`;
-      overlay.style = `background-position : ${x / 5 + y / 5}%; 
-      filter : opacity(${x / 240}) brightness(1.2);`;
+      box.style.transform = `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg);`;
+      overlay.style.backgroundPosition = `${x / 5 + y / 5}%`;
+      overlay.style.filter = `opacity(${x / 240}) brightness(1.2)`;
     };
     const handleMouseLeave = () => {
-      overlay.style = "filter : opacity(0);";
-      box.style = `transform: rotateX(0deg) rotateY(0deg);`;
+      overlay.style.filter = "opacity(0);";
+      box.style.transform = `rotateX(0deg) rotateY(0deg);`;
     };
 
     // 이벤트 리스너 추가
@@ -54,12 +59,11 @@ const PokeDex = ({ pokemon }: PokeData) => {
       box.removeEventListener("mousemove", handleMouseMove);
       box.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, []); // 의존성 배열이 비어있으므로 마운트될 때 한 번만 실행됩니다.
+  }, [boxRef, overlayRef]); // 의존성 배열이 비어있으므로 마운트될 때 한 번만 실행됩니다.
 
   const bg = `bg-${pokemon?.type}`;
   const border = `border-${pokemon?.type}`;
   const text = `text-${pokemon?.type}`;
-  // const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`;
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
   return (
     <>
@@ -77,7 +81,7 @@ const PokeDex = ({ pokemon }: PokeData) => {
         <Link
           to={`/pokemon/${pokemon?.name}`}
           state={{ id: pokemon.id }}
-          className={`${bg} flex flex-col block box-border rounded-lg ${border} w-[15rem] h-[15rem] z-0 justify-between items-center`}
+          className={`${bg} flex flex-col box-border rounded-lg ${border} w-[15rem] h-[15rem] z-0 justify-between items-center`}
         >
           <div
             ref={overlayRef}

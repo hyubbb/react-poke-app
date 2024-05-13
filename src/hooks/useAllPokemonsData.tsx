@@ -3,10 +3,8 @@ import axios from "axios";
 import { FormattedPokemonData } from "../types/FormattedPokemonData";
 import { useDispatch } from "react-redux";
 import { setAllPokemons } from "../stores/pokemon.slice";
-// import PokemonAllData from "../utils/AllDatas";
 import { useAppSelector } from "./redux";
 import { Ability, PokemonDetail, Sprites, Stat } from "../types/PokemonDetail";
-// import { allPokemons } from "../stores/pokemon.slice";
 import {
   FlavorTextEntry,
   Name,
@@ -43,7 +41,7 @@ const useAllPokemonsData = () => {
           );
           const { name, id, types, weight, height, stats, abilities, sprites } =
             pokemonData;
-
+          console.log(pokemonData);
           // // detail정보를 위한 데이터 가공
           const formattedPokemonData: FormattedPokemonData = {
             id,
@@ -72,6 +70,7 @@ const useAllPokemonsData = () => {
       console.log("에러 : " + error);
     }
   };
+
   const pokemonKoreanName = async (pokeNum: number, pokeName: string) => {
     try {
       const response = await axios.get(
@@ -83,7 +82,7 @@ const useAllPokemonsData = () => {
 
       return result;
     } catch (error) {
-      if (error.response && error.response.status === 404) {
+      if (error.response && error.response?.status === 404) {
         console.log("데이터가 없는 포켓몬입니다.");
         return pokeName;
       } else {
@@ -98,7 +97,7 @@ const useAllPokemonsData = () => {
       .filter((_, i) => i <= 1)
       .map((obj: Ability) => obj.ability.name.replaceAll("-", " "));
   };
-  const formatPokemonSprites = (sprites: Sprites) => {
+  const formatPokemonSprites = (sprites: Sprites): any => {
     const newSprites = { ...sprites };
 
     (Object.keys(newSprites) as (keyof typeof newSprites)[]).forEach((key) => {
@@ -113,18 +112,19 @@ const useAllPokemonsData = () => {
       },
       {}
     );
-    objects = Object.entries(objects);
+
+    let data = Object.entries(objects);
 
     const array = [];
-    let minus = objects.length / 2;
-    for (let i = 0; i < objects.length; i++) {
+    let minus = data.length / 2;
+    for (let i = 0; i < data.length; i++) {
       if (i % 2 == 0) {
         // 0246
-        array[i] = objects[i / 2];
+        array[i] = data[i / 2];
         // console.log(i, leng / 2 + i);
       } else {
         // 1357
-        array[i] = objects[objects.length - minus];
+        array[i] = data[data.length - minus];
         minus--;
       }
     }

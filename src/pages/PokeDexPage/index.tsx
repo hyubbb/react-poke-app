@@ -3,10 +3,17 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import PokeDex from "./PokeDex";
 import { PokemonDetail } from "../../types/PokemonDetail";
 import notPokemon from "../../assets/img/404.png";
+import { useDispatch } from "react-redux";
+import { getFavorite } from "../../stores/pokemon.slice";
 
 const PokedexPage = () => {
+  const dispatch = useAppDispatch();
   const [sortedData, setSortedData] = useState<PokemonDetail[]>([]);
   const { favorite } = useAppSelector((state) => state.pokemon);
+
+  useEffect(() => {
+    dispatch(getFavorite());
+  }, []);
 
   useEffect(() => {
     filterHandler("low");
