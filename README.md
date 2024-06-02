@@ -1,11 +1,10 @@
 # 포켓몬 데이터 검색 플랫폼
 <br/>
-
-https://pokeapp-hyub.netlify.app/
+ 
 
 # 소개
 
----
+ 
 
 `React`와 `Tanstack-Query`,`poke Api`를 이용하여 만든 포켓몬스터 검색이 가능한 도감사이트 입니다.
 
