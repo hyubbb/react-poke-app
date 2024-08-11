@@ -96,10 +96,12 @@ const Autocomplete = ({
     }
   };
 
-  const moveDiv = (keyIndex, num) => {
+  const moveDiv = (keyIndex: number, num: number) => {
     if (keyIndex > 1) {
       const moveDiv = document.querySelector(".moveDiv");
-      moveDiv.style = `top:-${24 * (keyIndex - num)}px`;
+      if (moveDiv !== null) {
+        moveDiv.style = `top:-${24 * (keyIndex - num)}px`;
+      }
     }
   };
 

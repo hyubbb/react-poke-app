@@ -10,6 +10,7 @@ import {
   Name,
   PokemonDescription,
 } from "../types/PokemonDescription";
+import PokemonAllData from "../utils/AllDatas";
 const useAllPokemonsData = () => {
   const [pokemon, setPokemon] = useState<FormattedPokemonData[]>([]);
   const dispatch = useDispatch();
@@ -21,13 +22,20 @@ const useAllPokemonsData = () => {
       ? JSON.parse(cachedPokemonDataString)
       : null;
     if (cachedPokemonData) {
-      console.log("localstorage data loaded!");
+      // console.log("localstorage data loaded!");
       setPokemon(cachedPokemonData);
     } else {
-      console.log("fetching data from api...");
-      fetchAllPokemons();
+      // console.log("fetching data from api...");
+      // fetchAllPokemons();
+      fetchAllPokemonsFile();
     }
   }, []);
+
+  const fetchAllPokemonsFile = async () => {
+    setPokemon(PokemonAllData);
+    localStorage.setItem("pokemonData", JSON.stringify(PokemonAllData));
+    dispatch(setAllPokemons(PokemonAllData));
+  };
 
   const fetchAllPokemons = async () => {
     try {
@@ -41,7 +49,7 @@ const useAllPokemonsData = () => {
           );
           const { name, id, types, weight, height, stats, abilities, sprites } =
             pokemonData;
-          console.log(pokemonData);
+          // console.log(pokemonData);
           // // detail정보를 위한 데이터 가공
           const formattedPokemonData: FormattedPokemonData = {
             id,

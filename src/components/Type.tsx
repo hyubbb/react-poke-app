@@ -9,12 +9,13 @@ interface TypeProps {
 }
 
 const Type = ({ type, damageValue }: TypeProps) => {
-  const bgColor = type.name ? type.name : type;
+  console.log(type, damageValue);
+  const bgColor = type?.name;
   const [koName, setKoName] = useState([]);
 
   useEffect(() => {
     getFilterList(type.url);
-  }, []);
+  }, [type]);
 
   const getFilterList = async (url: string) => {
     if (url) {
@@ -43,13 +44,12 @@ const Type = ({ type, damageValue }: TypeProps) => {
     <div
       className={`h-[1.5rem] py-1 px-3 rounded-2xl ${bg} font-bold text-zinc-800 text-[1rem] leading-[1rem] capitalize flex gap-1 justify-center items-center mt-3`}
     >
-      <span>{koName}</span>
-      {damageValue && (
+      {damageValue ? (
         <>
-          <span className='bg-zinc-200/40 p-[.125rem] rounded'>
-            {damageValue}
-          </span>
+          <span className='bg-zinc-200/40 p-[.125rem] rounded'>{koName}</span>
         </>
+      ) : (
+        <span>{koName}</span>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import axios, { all } from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Loading } from "../../assets/Loading";
 import { LessThan } from "../../assets/LessThan";
@@ -33,58 +33,48 @@ const DetailPage = () => {
 
   useEffect(() => {
     dispatch(searchStatus(true));
-  }, []);
-
-  useEffect(() => {
     fetchPokemonData();
     dispatch(setScrollNum(pokeId));
-  }, [pokeId, allPokemon]);
+  }, [pokeId, allPokemon, dispatch]);
 
-  const fetchPokemonData = async () => {
+  const fetchPokemonData = useCallback(async () => {
+    if (!allPokemon) return;
+
     try {
-      const pokemonData = allPokemon?.find(
+      const pokemonData = allPokemon.find(
         ({ id }: { id: number }) => id === pokeId
       );
       if (pokemonData) {
-        const { types, sprites, name, abilities } = pokemonData;
-        // 비동기작업 한꺼번에 처리 후 리턴,
-        const DamageRelations = await Promise.all(
+        const { types } = pokemonData;
+        const damageRelations = await Promise.all(
           types.map(async (i: Species) => {
-            const type = await axios.get<DamageRelationsOfType>(i.url);
-            return type.data.damage_relations;
+            const { data } = await axios.get<DamageRelationsOfType>(i.url);
+            return data.damage_relations;
           })
         );
 
-        // detail정보를 위한 데이터 가공
         const formattedPokemonData: FormattedPokemonData = {
           ...pokemonData,
-          DamageRelations,
-
-          description: await formatPokemonDescription(name),
+          DamageRelations: damageRelations,
+          description: await formatPokemonDescription(pokemonData.name),
         };
 
         setPokemon(formattedPokemonData);
-        setIsLoading(false);
       }
     } catch (error) {
       console.error("서버에 상세데이터가 없는 포켓몬입니다.");
+    } finally {
       setIsLoading(false);
     }
-  };
+  }, [allPokemon, pokeId]);
 
   const filterFormatDescription = (flavorText: FlavorTextEntry[]): string[] => {
-    const koreanDescripiton = flavorText
+    const koreanDescription = flavorText
       ?.filter((text: FlavorTextEntry) => text.language.name == "ko")
       .map((text: FlavorTextEntry) =>
         text.flavor_text.replace(/\r|\n|\f/g, " ")
       );
-    return koreanDescripiton;
-  };
-
-  const formatPokemonAbilities = (abilities: Ability[]) => {
-    return abilities
-      .filter((_, i) => i <= 1)
-      .map((obj: Ability) => obj.ability.name.replaceAll("-", " "));
+    return koreanDescription;
   };
 
   const formatPokemonDescription = async (
@@ -110,13 +100,13 @@ const DetailPage = () => {
     );
   }
   if (!isLoading && !pokemon) {
-    console.log(isLoading, pokemon);
     return <NotData />;
   }
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`;
-  // console.log(pokemon.types?.[1]);
-  const bg = `bg-${pokemon?.type}`;
-  const text = `text-${pokemon?.type}`;
+
+  const bg = pokemon?.type ? `bg-${pokemon.type}` : "";
+  const text = pokemon?.type ? `text-${pokemon.type}` : "";
+
   if (!isLoading && pokemon) {
     return (
       <article className={`flex items-center gap-1 flex-col w-full`}>
@@ -176,6 +166,7 @@ const DetailPage = () => {
           >
             <div className='flex items-center justify-center gap-4'>
               {pokemon?.types?.map((type, idx) => {
+                console.log(type);
                 return <Type key={idx} type={type} />;
               })}
             </div>

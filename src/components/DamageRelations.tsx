@@ -183,20 +183,22 @@ const DamageRelations = ({ damages }: DamageProps) => {
                     key={key}
                     className='capitailize font-medium  text-sm md:text-base text-slate-500 text-center'
                   >
-                    <h3 className='pb-2'>{valueOfKeyName[keyName]}</h3>
+                    {value.length > 0 && (
+                      <h3 className='pb-2'>{valueOfKeyName[keyName]}</h3>
+                    )}
                     <div className='flex flex-wrap gap-1 justify-center'>
                       {value.length > 0 ? (
                         value?.map(({ name, url, damageValue }) => {
                           return (
                             <Type
-                              type={name}
                               key={url}
+                              type={{ name, url }}
                               damageValue={damageValue}
                             />
                           );
                         })
                       ) : (
-                        <Type type={"none"} key={"none"} />
+                        <Type type={{ name: "", url: "" }} key={"none"} />
                       )}
                     </div>
                   </div>
