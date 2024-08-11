@@ -166,7 +166,6 @@ const DetailPage = () => {
           >
             <div className='flex items-center justify-center gap-4'>
               {pokemon?.types?.map((type, idx) => {
-                console.log(type);
                 return <Type key={idx} type={type} />;
               })}
             </div>

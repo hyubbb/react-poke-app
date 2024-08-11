@@ -112,6 +112,10 @@ const NavBar = () => {
       }
     });
 
+    if (!userData) {
+      navigate("/login");
+    }
+
     return () => {
       unsubscribe();
     };
@@ -177,25 +181,29 @@ const NavBar = () => {
 
         <div className='flex gap-[30px] justify-center items-center'>
           {/* {userData && ( */}
-          <div className='text-[40px]'>
-            <Link to={"/pokedex"}>
-              <img src={fav} alt='' width={50} />
-            </Link>
-          </div>
+
           {/* )} */}
           {pathname === `/login` ? (
             <Login onClick={handleAuth}>login</Login>
           ) : (
-            <SignOut>
-              {userData?.photoURL ? (
-                <UserImg src={loginIcon} />
-              ) : (
-                <UserImg src={loginIcon} />
-              )}
-              <Dropdown>
-                <span onClick={handleLogOut}>logout</span>
-              </Dropdown>
-            </SignOut>
+            <>
+              <div className='text-[40px]'>
+                <Link to={"/pokedex"}>
+                  <img src={fav} alt='' width={50} />
+                </Link>
+              </div>
+              <SignOut>
+                {userData?.photoURL ? (
+                  <UserImg src={loginIcon} />
+                ) : (
+                  <div className='bg-zinc-950 w-full h-full rounded-full' />
+                )}
+
+                <Dropdown>
+                  <span onClick={handleLogOut}>logout</span>
+                </Dropdown>
+              </SignOut>
+            </>
           )}
         </div>
       </NavWrapper>

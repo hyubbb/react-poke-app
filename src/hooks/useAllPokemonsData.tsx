@@ -49,7 +49,6 @@ const useAllPokemonsData = () => {
           );
           const { name, id, types, weight, height, stats, abilities, sprites } =
             pokemonData;
-          // console.log(pokemonData);
           // // detail정보를 위한 데이터 가공
           const formattedPokemonData: FormattedPokemonData = {
             id,
@@ -129,7 +128,6 @@ const useAllPokemonsData = () => {
       if (i % 2 == 0) {
         // 0246
         array[i] = data[i / 2];
-        // console.log(i, leng / 2 + i);
       } else {
         // 1357
         array[i] = data[data.length - minus];

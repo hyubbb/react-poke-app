@@ -9,7 +9,6 @@ interface TypeProps {
 }
 
 const Type = ({ type, damageValue }: TypeProps) => {
-  console.log(type, damageValue);
   const bgColor = type?.name;
   const [koName, setKoName] = useState([]);
 

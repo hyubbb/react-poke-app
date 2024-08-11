@@ -57,7 +57,6 @@ const Autocomplete = ({
           dispatch(searchStatus(true));
           setSearchTerm("");
         } else {
-          console.log(4);
           e.stopPropagation();
         }
       }
