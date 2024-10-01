@@ -11,6 +11,7 @@ type SearchType = {
   favorite: FormattedPokemonData[];
   allPokemon: FormattedPokemonData[];
   scrollNum: number;
+  viewPokemons: FormattedPokemonData[];
 };
 
 const initialState: SearchType = {
@@ -20,6 +21,7 @@ const initialState: SearchType = {
     ? JSON.parse(localStorage.getItem("allPokemon") || "")
     : [],
   scrollNum: 0,
+  viewPokemons: [],
 };
 
 const storageData = () => {
@@ -78,6 +80,9 @@ export const pokemonSlice = createSlice({
       state.scrollNum = 0;
       localStorage.removeItem("scrollNum");
     },
+    setViewPokemons: (state, action) => {
+      state.viewPokemons = action.payload;
+    },
   },
 });
 
@@ -88,6 +93,7 @@ export const {
   addFavorite,
   removeFavorite,
   setAllPokemons,
+  setViewPokemons,
   setScrollNum,
   removeScrollNum,
 } = pokemonSlice.actions;

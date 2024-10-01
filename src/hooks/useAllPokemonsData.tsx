@@ -62,8 +62,8 @@ const useAllPokemonsData = () => {
             abilities: formatPokemonAbilities(abilities),
             stats: formatPokemonStats(stats),
             DamageRelations: [],
-            type: types[0].type.name,
-            types: types.map((type) => type.type),
+            type: types[0].name,
+            types: types.map((type) => type),
             sprites: formatPokemonSprites(sprites),
             description: "",
           };

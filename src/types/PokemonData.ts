@@ -1,3 +1,5 @@
+import { FormattedPokemonData } from "./FormattedPokemonData";
+
 export interface PokemonData {
   count: number;
   next: string | null;

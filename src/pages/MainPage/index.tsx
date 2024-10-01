@@ -11,6 +11,7 @@ import {
   searchStatus,
   removeScrollNum,
   getFavorite,
+  setViewPokemons,
 } from "../../stores/pokemon.slice";
 import Filter from "../../components/Filter";
 import loading from "../../assets/img/loading.gif";
@@ -25,7 +26,9 @@ interface fetchDataType {
 
 function MainPage() {
   const dispatch = useAppDispatch();
-  const { searchState, scrollNum } = useAppSelector((state) => state.pokemon);
+  const { searchState, scrollNum, viewPokemons } = useAppSelector(
+    (state) => state.pokemon
+  );
   const [allPokemons, setAllPokemons] = useState<FormattedPokemonData[]>([]);
   const [displayPokemons, setDisplayPokemons] = useState<
     FormattedPokemonData[]
@@ -65,17 +68,18 @@ function MainPage() {
     enabled: isDataLoaded, // 쿼리 실행 조건
   });
 
+  const fetchPokeData = ({ data: fetchPokemons }: fetchDataType) => {
+    // setDisplayPokemons(fetchPokemons);
+    dispatch(setViewPokemons(fetchPokemons));
+    setIsLoadingMain(false);
+  };
+
   useEffect(() => {
     if (fetchData) {
       const fetchPokemons = fetchData.pages[fetchData.pages.length - 1];
       fetchPokeData(fetchPokemons);
     }
   }, [fetchData]);
-
-  const fetchPokeData = ({ data: fetchPokemons }: fetchDataType) => {
-    setDisplayPokemons(fetchPokemons);
-    setIsLoadingMain(false);
-  };
 
   const backHandler = () => {
     if (searchState) {
@@ -125,7 +129,7 @@ function MainPage() {
     return () => {
       window.removeEventListener("DOMContentLoaded", handlePageLoad);
     };
-  }, [displayPokemons]);
+  }, [viewPokemons]);
 
   return (
     <>
@@ -142,11 +146,11 @@ function MainPage() {
         <header className='flex flex-col gap-2 w-full px-4 z-50'>
           <Autocomplete
             allPokemons={allPokemons}
-            setDisplayPokemons={setDisplayPokemons}
+            // setDisplayPokemons={setDisplayPokemons}
           />
           <div className='flex mt-10 mb-6 px-3 justify-center'>
             <Filter
-              setDisplayPokemons={setDisplayPokemons}
+              // setDisplayPokemons={setDisplayPokemons}
               setIsLoadingMain={setIsLoadingMain}
               allPokemons={allPokemons}
               setIsNotData={setIsNotData}
@@ -156,8 +160,8 @@ function MainPage() {
         {/* <AuseAllPokemonsData /> */}
         <section className='pt-6 flex flex-col justify-content items-center overflow-auto z-0 scrollbar-none'>
           <div className='flex flex-row flex-wrap gap-[16px] items-center justify-center px-2 max-w-4xl '>
-            {displayPokemons?.length > 0 ? (
-              displayPokemons.map((pokemon, idx) => {
+            {viewPokemons?.length > 0 ? (
+              viewPokemons.map((pokemon, idx) => {
                 const { url, name, id } = pokemon;
                 return (
                   <div key={idx} id={`pokemon_${id}`}>
@@ -178,7 +182,7 @@ function MainPage() {
           </div>
         </section>
         <div className='text-center'>
-          {displayPokemons?.length >= 1 && (
+          {viewPokemons?.length >= 1 && (
             <button
               onClick={() => backHandler()}
               className='bg-slate-800 px-6 py-2 my-4 text-base rounded-lg font-bold text-white'

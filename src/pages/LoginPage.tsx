@@ -1,5 +1,3 @@
-import React from "react";
-
 const LoginPage = () => {
   return (
     <div>
@@ -19,6 +17,7 @@ const LoginPage = () => {
               src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png'
               className='rounded-2xl'
               alt='login'
+              loading='lazy'
             />
           </div>
         </div>

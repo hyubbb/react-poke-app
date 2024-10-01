@@ -14,6 +14,9 @@ import storage from "../utils/storage";
 import fav from "../assets/img/fav.png";
 import loginIcon from "../assets/img/login.png";
 import logo from "../assets/img/pokelogo.png";
+import Autocomplete from "../components/Autocomplete";
+import { useAppSelector } from "../hooks/redux";
+import { FormattedPokemonData } from "../types/FormattedPokemonData";
 
 const NavWrapper = styled.nav<{ $show: boolean }>`
   position: fixed;
@@ -166,7 +169,10 @@ const NavBar = () => {
         alert(error.message);
       });
   };
-
+  const { allPokemon } = useAppSelector((state) => state.pokemon);
+  const [displayPokemons, setDisplayPokemons] = useState<
+    FormattedPokemonData[]
+  >([]);
   return (
     <>
       <NavWrapper $show={show}>
@@ -178,7 +184,10 @@ const NavBar = () => {
             onClick={() => (window.location.href = "/")}
           />
         </Logo>
-
+        <Autocomplete
+          allPokemons={allPokemon}
+          // setDisplayPokemons={setDisplayPokemons}
+        />
         <div className='flex gap-[30px] justify-center items-center'>
           {/* {userData && ( */}
 

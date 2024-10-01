@@ -6,15 +6,9 @@ import unLike from "../assets/img/pokeball2.png";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { addFavorite, removeFavorite } from "../stores/pokemon.slice";
 import { FormattedPokemonData } from "../types/FormattedPokemonData";
-interface PokeData {
-  id: number;
-  types: string;
-  name: string;
-  url: string;
-  koreanName: string;
-}
+import { PokemonNameAndUrl } from "../types/PokemonData";
 
-interface PokeCardProps {
+export interface PokeCardProps {
   pokemons: FormattedPokemonData;
   name: string;
 }
@@ -31,7 +25,9 @@ const PokeCard = ({ pokemons, name }: PokeCardProps) => {
 
   useEffect(() => {
     setPokemon(pokemons);
-    setFavMatching(favorite?.find((fav: PokeData) => fav.name === name));
+    setFavMatching(
+      favorite?.find((fav: PokemonNameAndUrl) => fav.name === name)
+    );
   }, [pokemons, favorite]);
 
   const favoriteHandler = () => {

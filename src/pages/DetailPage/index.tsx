@@ -9,6 +9,8 @@ import { Balance } from "../../assets/Balance";
 import { Vector } from "../../assets/Vector";
 import Type from "../../components/Type";
 import BaseStat from "../../components/BaseStat";
+import like from "../../assets/img/pokeball1.png";
+import unLike from "../../assets/img/pokeball2.png";
 import { FormattedPokemonData } from "../../types/FormattedPokemonData";
 import { Ability, Species, Sprites } from "../../types/PokemonDetail";
 
@@ -20,7 +22,14 @@ import {
 import NotData from "../../components/NotData";
 import DamageRelations from "../../components/DamageRelations";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { searchStatus, setScrollNum } from "../../stores/pokemon.slice";
+import {
+  addFavorite,
+  removeFavorite,
+  searchStatus,
+  setScrollNum,
+} from "../../stores/pokemon.slice";
+import DamageModal from "../../components/DamageModal";
+import { PokemonNameAndUrl } from "../../types/PokemonData";
 
 const DetailPage = () => {
   const location = useLocation();
@@ -30,6 +39,20 @@ const DetailPage = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { id: pokeId } = location.state;
   const { allPokemon } = useAppSelector((state) => state.pokemon);
+  const { favorite } = useAppSelector((state) => state.pokemon);
+  const [favMatching, setFavMatching] = useState();
+
+  useEffect(() => {
+    setFavMatching(
+      favorite?.find((fav: PokemonNameAndUrl) => fav.id === pokeId)
+    );
+  }, [favorite]);
+
+  const favoriteHandler = () => {
+    favMatching
+      ? dispatch(removeFavorite(pokemon))
+      : dispatch(addFavorite(pokemon));
+  };
 
   useEffect(() => {
     dispatch(searchStatus(true));
@@ -103,7 +126,6 @@ const DetailPage = () => {
     return <NotData />;
   }
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`;
-
   const bg = pokemon?.type ? `bg-${pokemon.type}` : "";
   const text = pokemon?.type ? `text-${pokemon.type}` : "";
 
@@ -115,7 +137,7 @@ const DetailPage = () => {
         >
           {pokemon.previous && (
             <Link
-              className={`absolute top-[40%] -translate-y-1/2 z-50 left-1 w-3`}
+              className={`fixed top-[50%] -translate-y-1/2 z-50 left-1 w-3`}
               to={`/pokemon/${pokemon.previous}`}
               state={{ id: pokemon.id - 1 }}
             >
@@ -124,7 +146,7 @@ const DetailPage = () => {
           )}
           {pokemon.next && (
             <Link
-              className={`absolute top-[40%] -translate-y-1/2 z-50 right-1 w-3`}
+              className={`fixed top-[50%] -translate-y-1/2 z-50 right-1 w-3`}
               to={`/pokemon/${pokemon.next}`}
               state={{ id: pokemon.id + 1 }}
             >
@@ -138,12 +160,24 @@ const DetailPage = () => {
                 <Link to='/'>
                   <ArrowLeft className='w-6 h-0 text-zinc-200' />
                 </Link>
-                <h1 className='text-zinc-200 font-bold text-5xl capitalize'>
-                  {pokemon.koreanName}
-                </h1>
+                <span>
+                  <h1 className='text-zinc-200 font-bold text-5xl capitalize'>
+                    {pokemon.koreanName}
+                  </h1>
+                </span>
               </div>
-              <div className='text-zinc-200 font-bold text-2xl'>
-                #{pokemon.id.toString().padStart(3, "00")}
+              <div className='text-zinc-200 font-bold text-2xl flex gap-1'>
+                <span>#{pokemon.id.toString().padStart(3, "00")}</span>
+                <button
+                  onClick={favoriteHandler}
+                  className='w-[20px] max-sm:w-[30px]'
+                >
+                  {favMatching ? (
+                    <img src={like} width='100' />
+                  ) : (
+                    <img src={unLike} width='100' />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -229,7 +263,10 @@ const DetailPage = () => {
                 </h2>
                 <div className='w-10/12'>
                   <h2 className={`text-base text-center font-semibold ${text}`}>
-                    <DamageRelations damages={pokemon.DamageRelations} />
+                    <DamageRelations
+                      damages={pokemon.DamageRelations}
+                      bg={bg}
+                    />
                   </h2>
                 </div>
               </>
@@ -238,9 +275,12 @@ const DetailPage = () => {
               이로치 폼
             </h2>
             <div className='flex justify-center flex-wrap my-3'>
-              {[...pokemon.sprites].reverse().map((sprite) => (
-                <img key={sprite[0]} src={sprite[1]} width={150} />
-              ))}
+              {[...pokemon.sprites]
+                .splice(2)
+                .reverse()
+                .map((sprite) => (
+                  <img key={sprite[0]} src={sprite[1]} width={150} />
+                ))}
             </div>
           </section>
         </div>

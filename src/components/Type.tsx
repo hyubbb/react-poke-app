@@ -38,14 +38,16 @@ const Type = ({ type, damageValue }: TypeProps) => {
   };
 
   const bg = `bg-${bgColor}`;
-
   return (
     <div
-      className={`h-[1.5rem] py-1 px-3 rounded-2xl ${bg} font-bold text-zinc-800 text-[1rem] leading-[1rem] capitalize flex gap-1 justify-center items-center mt-3`}
+      className={`h-[1.5rem] py-1 px-3 rounded-sm ${bg} font-bold text-zinc-800 text-[1rem] leading-[1rem] flex gap-1 justify-center items-center mt-3`}
     >
       {damageValue ? (
         <>
-          <span className='bg-zinc-200/40 p-[.125rem] rounded'>{koName}</span>
+          {koName}
+          <div className='p-[.125rem] rounded font-extrabold'>
+            x{damageValue}
+          </div>
         </>
       ) : (
         <span>{koName}</span>

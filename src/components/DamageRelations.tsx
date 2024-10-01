@@ -9,6 +9,7 @@ import {
 
 interface DamageProps {
   damages: DamageRelationsProps[];
+  bg: string;
 }
 
 interface Info {
@@ -16,9 +17,7 @@ interface Info {
   url: string;
 }
 
-const DamageRelations = ({ damages }: DamageProps) => {
-  //   console.log(damages);
-
+const DamageRelations = ({ damages, bg }: DamageProps) => {
   const [damagePokemonForm, setDamagePokemonForm] =
     useState<SetDamagePokemonForm>();
 
@@ -27,7 +26,6 @@ const DamageRelations = ({ damages }: DamageProps) => {
 
   useEffect(() => {
     const arrayDamage = damages.map((damage) => separateToAndFrom(damage));
-
     if (arrayDamage.length === 2) {
       // 합치는부분, valueOfKeyName 추가는 별도로
       const obj = joinDamageRelations(arrayDamage);
@@ -37,7 +35,7 @@ const DamageRelations = ({ damages }: DamageProps) => {
     } else {
       // 속성이 하나일때, valueOfKeyName 속성을 추가해준다.
       setDamagePokemonForm(postDamageValue(arrayDamage[0]?.from));
-      setDamagePokemonTo(postDamageValue(arrayDamage[0]?.from));
+      setDamagePokemonTo(postDamageValue(arrayDamage[0]?.to));
     }
   }, [damages]);
 
@@ -74,9 +72,9 @@ const DamageRelations = ({ damages }: DamageProps) => {
    */
   const reduceDuplicateValues = (props: SetDamagePokemonForm) => {
     const duplicateValues = {
-      double_damage: "4x",
-      half_damage: "1/4x",
-      no_damage: "0x",
+      double_damage: 4,
+      half_damage: 1 / 4,
+      no_damage: 0,
     };
 
     return Object.entries(props).reduce((acc, [keyName, value]) => {
@@ -103,12 +101,10 @@ const DamageRelations = ({ damages }: DamageProps) => {
     damageValue: string
   ) => {
     const initialArray: Damage[] = [];
-    // console.log(valueFiltering);
     const result = valueFiltering.reduce((acc, currentValue) => {
       const { url, name } = currentValue;
       // 중복되는 이름을 발견하여 제거 하면 전체 배열길이가 줄어든다.
       const filterACC = acc.filter((a) => a.name !== name);
-      // console.log(name, acc);
       // 처음의 배열과 길이가 다르면 중복이 제거됫다는 말이니까 damageValue값을 바꿔준다.
       return filterACC.length === acc.length
         ? (acc = [currentValue, ...acc])
@@ -124,9 +120,9 @@ const DamageRelations = ({ damages }: DamageProps) => {
       const keyName = key as keyof typeof props;
 
       const valueOfKeyName = {
-        double_damage: "2x",
-        half_damage: "1/2x",
-        no_damage: "0x",
+        double_damage: 2,
+        half_damage: 1 / 2,
+        no_damage: 0,
       };
 
       const result = (acc = {
@@ -167,44 +163,105 @@ const DamageRelations = ({ damages }: DamageProps) => {
 
   return (
     <>
-      <div className='flex gap-2 flex-col'>
+      <div className='flex gap-4 items-baseline max-md:flex-col'>
         {damagePokemonForm ? (
           <>
-            {Object.entries(damagePokemonForm).map(
-              ([key, value]: [string, Damage[]]) => {
-                const valueOfKeyName = {
-                  double_damage: "약함",
-                  half_damage: "강함",
-                  no_damage: "면역",
-                };
-                const keyName = key as keyof typeof damagePokemonForm;
-                return (
-                  <div
-                    key={key}
-                    className='capitailize font-medium  text-sm md:text-base text-slate-500 text-center'
-                  >
-                    {value.length > 0 && (
-                      <h3 className='pb-2'>{valueOfKeyName[keyName]}</h3>
-                    )}
-                    <div className='flex flex-wrap gap-1 justify-center'>
-                      {value.length > 0 ? (
-                        value?.map(({ name, url, damageValue }) => {
-                          return (
-                            <Type
-                              key={url}
-                              type={{ name, url }}
-                              damageValue={damageValue}
-                            />
-                          );
-                        })
-                      ) : (
-                        <Type type={{ name: "", url: "" }} key={"none"} />
-                      )}
-                    </div>
-                  </div>
-                );
-              }
-            )}
+            <div className='flex flex-col items-center gap-2'>
+              <div className={`text-zinc-100 p-2  rounded-lg w-48`}>
+                <h2>받는 데미지</h2>
+              </div>
+
+              <div className='bg-zinc-50/5 p-4 grid gap-4 rounded-xl'>
+                {Object.entries(damagePokemonForm).map(
+                  ([key, value]: [string, Damage[]]) => {
+                    const valueOfKeyName = {
+                      double_damage: "약점",
+                      half_damage: "강점",
+                      no_damage: "면역",
+                    };
+                    const keyName = key as keyof typeof damagePokemonForm;
+                    return (
+                      <div
+                        key={key}
+                        className='capitailize font-medium text-sm md:text-base text-slate-500 text-center'
+                      >
+                        {value.length > 0 && (
+                          <h3 className=''>{valueOfKeyName[keyName]}</h3>
+                        )}
+                        <div className='flex flex-wrap gap-2 justify-center'>
+                          {value.length > 0 ? (
+                            value
+                              ?.sort((a, b) => +b.damageValue - +a.damageValue)
+                              .map(({ name, url, damageValue }) => {
+                                return (
+                                  <Type
+                                    key={url}
+                                    type={{ name, url }}
+                                    damageValue={damageValue}
+                                  />
+                                );
+                              })
+                          ) : (
+                            <Type type={{ name: "", url: "" }} key={"none"} />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </div>
+          </>
+        ) : (
+          ""
+        )}
+
+        {damagePokemonTo ? (
+          <>
+            <div className='flex flex-col items-center gap-2'>
+              <div className={`text-white p-2 rounded-lg w-48`}>
+                <h2>주는 데미지</h2>
+              </div>
+              <div className='bg-zinc-50/5 p-4 grid gap-4 rounded-xl'>
+                {Object.entries(damagePokemonTo).map(
+                  ([key, value]: [string, Damage[]]) => {
+                    const valueOfKeyName = {
+                      double_damage: "약점",
+                      half_damage: "강점",
+                      no_damage: "면역",
+                    };
+                    const keyName = key as keyof typeof damagePokemonTo;
+                    return (
+                      <div
+                        key={key}
+                        className='capitailize font-medium text-sm md:text-base text-slate-500 my-1'
+                      >
+                        {value.length > 0 && (
+                          <h3 className=''>{valueOfKeyName[keyName]}</h3>
+                        )}
+                        <div className='flex flex-wrap gap-2 justify-center'>
+                          {value.length > 0 ? (
+                            value
+                              ?.sort((a, b) => +b.damageValue - +a.damageValue)
+                              .map(({ name, url, damageValue }) => {
+                                return (
+                                  <Type
+                                    key={url}
+                                    type={{ name, url }}
+                                    damageValue={damageValue}
+                                  />
+                                );
+                              })
+                          ) : (
+                            <Type type={{ name: "", url: "" }} key={"none"} />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </div>
           </>
         ) : (
           ""

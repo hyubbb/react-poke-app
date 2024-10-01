@@ -7,20 +7,20 @@
 import React, { useState, useRef } from "react";
 import { PokemonNameAndUrl } from "../types/PokemonData";
 import { useAppDispatch } from "../hooks/redux";
-import { searchStatus } from "../stores/pokemon.slice";
+import { setViewPokemons, searchStatus } from "../stores/pokemon.slice";
 import { FormattedPokemonData } from "../types/FormattedPokemonData";
 
 interface AutoCompleteProps {
   allPokemons: FormattedPokemonData[];
-  setDisplayPokemons: React.Dispatch<
-    React.SetStateAction<FormattedPokemonData[]>
-  >;
+  // setDisplayPokemons: React.Dispatch<
+  //   React.SetStateAction<FormattedPokemonData[]>
+  // >;
 }
 
 const Autocomplete = ({
   allPokemons,
-  setDisplayPokemons,
-}: AutoCompleteProps) => {
+}: // setDisplayPokemons,
+AutoCompleteProps) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [keyIndex, setKeyIndex] = useState(-1);
   const dispatch = useAppDispatch();
@@ -53,7 +53,8 @@ const Autocomplete = ({
     if (keyIndex == -1 && searchTerm) {
       if (searchTerm !== "") {
         if (filterNames(text).length) {
-          setDisplayPokemons(filterNames(text) as FormattedPokemonData[]);
+          // setDisplayPokemons(filterNames(text) as FormattedPokemonData[]);
+          dispatch(setViewPokemons(filterNames(text)));
           dispatch(searchStatus(true));
           setSearchTerm("");
         } else {
@@ -112,7 +113,7 @@ const Autocomplete = ({
       >
         <input
           type='text'
-          className='text-xs w-[20.5rem] h-6 px2 py-1 rounded-lg text-gray-300 text-center bg-[hsl(214,13%,47%)]'
+          className='text-xs w-[20.5rem] h-6 px-2 py-1 rounded-lg text-gray-300 text-center bg-[hsl(214,13%,47%)]'
           onChange={(e) => setSearchTerm(e.target.value)}
           value={searchTerm}
           onKeyUp={handleKeyArrow}

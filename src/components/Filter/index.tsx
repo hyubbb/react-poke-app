@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { searchStatus } from "../../stores/pokemon.slice";
+import { searchStatus, setViewPokemons } from "../../stores/pokemon.slice";
 import { useDispatch } from "react-redux";
 import { koFilterName } from "../../types/FilterData";
 import { Name, Pokemon } from "../../types/DamageRelationsOfType";
@@ -8,13 +8,13 @@ import { Species } from "../../types/PokemonDetail";
 import { FormattedPokemonData } from "../../types/FormattedPokemonData";
 
 interface FilterProps {
-  setDisplayPokemons: any;
+  // setDisplayPokemons: any;
   setIsLoadingMain: any;
   allPokemons: any;
   setIsNotData: any;
 }
 const Filter = ({
-  setDisplayPokemons,
+  // setDisplayPokemons,
   setIsLoadingMain,
   allPokemons,
   setIsNotData,
@@ -68,7 +68,8 @@ const Filter = ({
       setIsLoadingMain(false);
     }
 
-    setDisplayPokemons(result);
+    // setDisplayPokemons(result);
+    dispatch(setViewPokemons(result));
   };
 
   return (
@@ -80,7 +81,8 @@ const Filter = ({
         <ul className='max-w-[500px] flex gap-3 flex-wrap justify-center'>
           <li
             className='border-2 border-solid px-2 rounded-md cursor-pointer'
-            onClick={() => setDisplayPokemons(allPokemons)}
+            // onClick={() => setDisplayPokemons(allPokemons)}
+            onClick={() => dispatch(setViewPokemons(allPokemons))}
           >
             전부
           </li>
